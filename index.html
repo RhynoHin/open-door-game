@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>老竇開門遊戲</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #ffe9a9, #f9c4ff, #8fd3ff);
+    }
+
+    .game-wrapper {
+      background: #ffffffdd;
+      border-radius: 18px;
+      padding: 18px 16px 20px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+      border: 2px solid #333;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      text-align: center;
+      font-size: 1.4rem;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #555;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .status-bar {
+      font-size: 0.8rem;
+      background: #f3f3f3;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      border: 1px dashed #bbb;
+    }
+
+    .status-bar span.label {
+      font-weight: 600;
+    }
+
+    .door-area {
+      position: relative;
+      margin: 10px auto 12px;
+      width: 260px;
+      height: 200px;
+      background: linear-gradient(135deg, #654321, #4a2e18);
+      border-radius: 14px;
+      border: 3px solid #2b1a0f;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .door-inner {
+      position: relative;
+      width: 92%;
+      height: 92%;
+      margin-bottom: 6px;
+      background: repeating-linear-gradient(
+        90deg,
+        #7a4b26 0,
+        #7a4b26 18px,
+        #8a5a30 18px,
+        #8a5a30 36px
+      );
+      border-radius: 10px;
+      border: 2px solid #2b1a0f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .door-inner.open {
+      transform: rotateY(-18deg) translateX(-6px);
+      box-shadow: 10px 0 18px rgba(0, 0, 0, 0.35);
+      background: linear-gradient(135deg, #fff9d2, #ffe0e9);
+    }
+
+    .door-inner.resting {
+      filter: grayscale(0.4) brightness(0.8);
+    }
+
+    .door-inner::before {
+      content: "";
+      position: absolute;
+      right: 16px;
+      width: 12px;
+      height: 12px;
+      background: radial-gradient(circle, #ffd966, #d49b28);
+      border-radius: 50%;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .dad-face {
+      position: relative;
+      z-index: 1;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: #ffe4c4;
+      border: 3px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      box-shadow: 0 3px 0 #d1b090;
+    }
+
+    .dad-face::before {
+      /* 頭髮 */
+      content: "";
+      position: absolute;
+      top: -3px;
+      width: 120%;
+      height: 52%;
+      background: radial-gradient(circle at top, #333, #111);
+      border-radius: 80% 80% 40% 40%;
+      z-index: -1;
+    }
+
+    .dad-face.mad {
+      background: #ffb3b3;
+    }
+
+    .dad-face.happy {
+      background: #ffecc2;
+    }
+
+    .speech-bubble {
+      position: absolute;
+      top: 6px;
+      left: 10px;
+      right: 10px;
+      margin: auto;
+      width: 88%;
+      min-height: 46px;
+      background: #ffffffee;
+      border-radius: 12px;
+      padding: 6px 8px;
+      font-size: 0.78rem;
+      border: 2px solid #333;
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .speech-bubble::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 6px 6px 0 6px;
+      border-style: solid;
+      border-color: #333 transparent transparent transparent;
+    }
+
+    .speech-bubble::before {
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 6px 6px 0 6px;
+      border-style: solid;
+      border-color: #ffffffee transparent transparent transparent;
+      z-index: 1;
+    }
+
+    .buttons-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    button {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.15s;
+      box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3);
+      white-space: nowrap;
+    }
+
+    button:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-big {
+      background: linear-gradient(135deg, #ff91c7, #ff5da2);
+      color: #fff;
+    }
+
+    .btn-small {
+      background: linear-gradient(135deg, #ffe066, #ffb347);
+      color: #5b3b00;
+    }
+
+    .info-line {
+      font-size: 0.75rem;
+      color: #555;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .footer-note {
+      font-size: 0.7rem;
+      text-align: center;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .shake {
+      animation: shake 0.35s ease;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-5px); }
+      40% { transform: translateX(5px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+      100% { transform: translateX(0); }
+    }
+
+    .pop {
+      animation: pop 0.25s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.9); }
+      70% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @media (max-width: 480px) {
+      .game-wrapper {
+        max-width: 94%;
+      }
+      .door-area {
+        width: 230px;
+        height: 185px;
+      }
+      .speech-bubble {
+        font-size: 0.76rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-wrapper">
+    <h1>老竇開門模擬器</h1>
+    <div class="subtitle">
+      星期一至五 <strong>18:00</strong> 才當值。<br />
+      大女＝開門超開心，細女＝老竇火都嚟。
+    </div>
+
+    <div class="status-bar">
+      <div><span class="label">現在時間：</span><span id="time-text">--:--</span></div>
+      <div><span class="label">今日狀態：</span><span id="day-status">載入中...</span></div>
+    </div>
+
+    <div class="door-area">
+      <div class="speech-bubble" id="bubble">
+        叮叮叮～等人敲門先啦。
+      </div>
+      <div class="door-inner" id="door">
+        <div class="dad-face" id="dad-face">
+          😴
+        </div>
+      </div>
+    </div>
+
+    <div class="info-line">
+      ※ 只有<strong>星期一至五 18:00</strong>先會正式幫大女開門。
+    </div>
+
+    <div class="buttons-row">
+      <button class="btn-big" id="btn-big">👧 大女敲門</button>
+      <button class="btn-small" id="btn-small">🧒 細女敲門</button>
+    </div>
+
+    <div class="footer-note">
+      小貼士：你可以每日 18:00 再嚟試下，睇吓老竇心情點。
+    </div>
+  </div>
+
+  <script>
+    // ========= 時間 & 狀態邏輯 =========
+    function getStatus() {
+      const now = new Date();
+      const day = now.getDay(); // 0 = Sunday
+      const hour = now.getHours();
+      const minute = now.getMinutes();
+
+      const isWeekend = (day === 0 || day === 6);
+      const isOnDutyTime = (!isWeekend && hour === 18); // 星期一至五 18:00
+
+      return { now, day, hour, minute, isWeekend, isOnDutyTime };
+    }
+
+    function pad2(n) {
+      return n.toString().padStart(2, "0");
+    }
+
+    function getDayName(day) {
+      const map = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+      return map[day] || "";
+    }
+
+    function updateTimePanel() {
+      const { now, day, hour, minute, isWeekend, isOnDutyTime } = getStatus();
+      const timeText = document.getElementById("time-text");
+      const dayStatus = document.getElementById("day-status");
+
+      timeText.textContent =
+        `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())} `
+        + `${pad2(hour)}:${pad2(minute)} (${getDayName(day)})`;
+
+      if (isWeekend) {
+        dayStatus.textContent = "週末模式：老竇放假瞓到反眼，唔接客。";
+      } else if (isOnDutyTime) {
+        dayStatus.textContent = "當值時間：老竇已經收工返屋企，可以幫大女開門。";
+      } else {
+        dayStatus.textContent = "平日非 18:00：老竇仲忙緊，心情唔太穩定。";
+      }
+
+      const door = document.getElementById("door");
+      if (isWeekend) {
+        door.classList.add("resting");
+      } else {
+        door.classList.remove("resting");
+      }
+    }
+
+    setInterval(updateTimePanel, 1000);
+    updateTimePanel();
+
+    // ========= 聲效（Web Audio） =========
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+    }
+
+    function playBeep(freq = 440, duration = 0.15, type = "sine", volume = 0.3) {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.value = volume;
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+      osc.start(now);
+      osc.stop(now + duration);
+
+      // 平滑收尾
+      gain.gain.setValueAtTime(volume, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+    }
+
+    function playHappySound() {
+      // 小和弦 + 兩聲彈跳
+      playBeep(660, 0.12, "triangle", 0.35);
+      setTimeout(() => playBeep(880, 0.12, "triangle", 0.3), 120);
+      setTimeout(() => playBeep(660, 0.18, "triangle", 0.3), 260);
+    }
+
+    function playAngrySound() {
+      playBeep(160, 0.18, "square", 0.35);
+      setTimeout(() => playBeep(120, 0.18, "square", 0.35), 190);
+    }
+
+    function playNeutralSound() {
+      playBeep(440, 0.12, "sine", 0.25);
+    }
+
+    // ========= 遊戲互動 =========
+    const btnBig = document.getElementById("btn-big");
+    const btnSmall = document.getElementById("btn-small");
+    const bubble = document.getElementById("bubble");
+    const door = document.getElementById("door");
+    const dadFace = document.getElementById("dad-face");
+
+    function setDadMood(mood) {
+      // mood: "sleep" | "happy" | "mad" | "neutral"
+      dadFace.classList.remove("mad", "happy");
+      if (mood === "happy") {
+        dadFace.classList.add("happy");
+        dadFace.textContent = "😁";
+      } else if (mood === "mad") {
+        dadFace.classList.add("mad");
+        dadFace.textContent = "😡";
+      } else if (mood === "neutral") {
+        dadFace.textContent = "😐";
+      } else {
+        dadFace.textContent = "😴";
+      }
+    }
+
+    function setBubble(text) {
+      bubble.textContent = text;
+      bubble.classList.remove("pop");
+      // 重新觸發動畫
+      void bubble.offsetWidth;
+      bubble.classList.add("pop");
+    }
+
+    function doShake() {
+      door.classList.remove("shake");
+      void door.offsetWidth;
+      door.classList.add("shake");
+    }
+
+    function handleKnock(isBigDaughter) {
+      initAudio(); // 確保在第一次點擊時啟動 AudioContext
+
+      const { isWeekend, isOnDutyTime, hour } = getStatus();
+
+      // 週末：老竇死唔起身 mode
+      if (isWeekend) {
+        setDadMood("sleep");
+        setBubble("週末喎，老竇排咗假期瞓覺，唔理你哋兩姊妹。");
+        playNeutralSound();
+        doShake();
+        door.classList.remove("open");
+        return;
+      }
+
+      // 平日，根據係大女定細女
+      if (isBigDaughter) {
+        // 大女敲門
+        if (isOnDutyTime) {
+          // 正確時間 + 平日 => 超開心開門
+          setDadMood("happy");
+          setBubble("哎呀～大女返嚟啦！老竇即刻幫你開門先～❤");
+          playHappySound();
+          door.classList.add("open");
+        } else {
+          // 平日但唔係 18:00
+          setDadMood("neutral");
+          door.classList.remove("open");
+          if (hour < 18) {
+            setBubble("未到六點呀大女，老竇仲 OT 緊，等陣先再敲啦。");
+          } else {
+            setBubble("過咗六點啦，你都識夜歸嫁？老竇攰到仆街，聽日準時啲啦。");
+          }
+          playNeutralSound();
+          doShake();
+        }
+      } else {
+        // 細女敲門：老竇鬧人
+        setDadMood("mad");
+        door.classList.remove("open");
+
+        if (isOnDutyTime) {
+          setBubble("喂又係你細女？！老竇淨係約咗大女 18:00 開門，你自己搵鎖匙啦！");
+        } else {
+          if (hour < 18) {
+            setBubble("細女你又喺度嘈？未到六點又搵老竇，收聲返去溫書啦！");
+          } else {
+            setBubble("細女，你知唔知幾夜？老竇想瞓覺！再敲我收你電話！");
+          }
+        }
+        playAngrySound();
+        doShake();
+      }
+    }
+
+    btnBig.addEventListener("click", () => handleKnock(true));
+    btnSmall.addEventListener("click", () => handleKnock(false));
+
+    // 初始表情
+    setDadMood("sleep");
+  </script>
+</body>
+</html>
