@@ -1,86 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8" />
-  <title>老竇開門遊戲</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at top, #fdf2f8, #e0f7fa, #f3e5f5); }
-    .game-wrapper { background:#ffffffdd;border-radius:18px;padding:18px 16px 20px;max-width:420px;width:100%;box-shadow:0 10px 25px rgba(0,0,0,0.18);border:2px solid #333; }
-    h1 { margin:0 0 6px;text-align:center;font-size:1.4rem; }
-    .subtitle { text-align:center;font-size:0.8rem;color:#555;margin-bottom:10px;line-height:1.4; }
-    .status-bar { font-size:0.8rem;background:#f3f3f3;border-radius:10px;padding:8px 10px;margin-bottom:10px;border:1px dashed #bbb; }
-    .status-bar span.label { font-weight:600; }
-    .door-area { position:relative;margin:10px auto 12px;width:260px;height:200px;background:linear-gradient(135deg,#654321,#4a2e18);border-radius:14px;border:3px solid #2b1a0f;overflow:hidden;display:flex;align-items:flex-end;justify-content:center; }
-    .door-inner { position:relative;width:92%;height:92%;margin-bottom:6px;background:repeating-linear-gradient(90deg,#7a4b26 0,#7a4b26 18px,#8a5a30 18px,#8a5a30 36px);border-radius:10px;border:2px solid #2b1a0f;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:transform 0.25s ease,box-shadow 0.25s ease; }
-    .door-inner.open { transform:rotateY(-18deg) translateX(-6px);box-shadow:10px 0 18px rgba(0,0,0,0.35);background:linear-gradient(135deg,#fff9d2,#ffe0e9); }
-    .door-inner.resting { filter:grayscale(0.4) brightness(0.8); }
-    .door-inner::before { content:"";position:absolute;right:16px;width:12px;height:12px;background:radial-gradient(circle,#ffd966,#d49b28);border-radius:50%;box-shadow:0 0 4px rgba(0,0,0,0.3); }
-    .dad-face { position:relative;z-index:1;width:110px;height:110px;border-radius:50%;background:#ffe4c4;border:3px solid #333;display:flex;align-items:center;justify-content:center;font-size:2.2rem;box-shadow:0 3px 0 #d1b090; }
-    .dad-face::before { content:"";position:absolute;top:-3px;width:120%;height:52%;background:radial-gradient(circle at top,#333,#111);border-radius:80% 80% 40% 40%;z-index:-1; }
-    .dad-face.mad { background:#ffb3b3; }
-    .dad-face.happy { background:#ffecc2; }
-    .speech-bubble { position:absolute;top:6px;left:10px;right:10px;margin:auto;width:88%;min-height:46px;background:#ffffffee;border-radius:12px;padding:6px 8px;font-size:0.78rem;border:2px solid #333;line-height:1.4;display:flex;align-items:center;justify-content:center;text-align:center; }
-    .speech-bubble::after { content:"";position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);border-width:6px 6px 0 6px;border-style:solid;border-color:#333 transparent transparent transparent; }
-    .speech-bubble::before { content:"";position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);border-width:6px 6px 0 6px;border-style:solid;border-color:#ffffffee transparent transparent transparent;z-index:1; }
-    .buttons-row { display:flex;gap:8px;margin-bottom:8px; }
-    button { flex:1;padding:8px 10px;border-radius:999px;border:none;font-size:0.9rem;font-weight:600;cursor:pointer;transition:transform 0.12s ease,box-shadow 0.12s ease,filter 0.15s;box-shadow:0 3px 0 rgba(0,0,0,0.3);white-space:nowrap; }
-    button:active { transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,0.3); }
-    .btn-big { background:linear-gradient(135deg,#ff91c7,#ff5da2);color:#fff; }
-    .btn-small { background:linear-gradient(135deg,#ffe066,#ffb347);color:#5b3b00; }
-    .info-line { font-size:0.75rem;color:#555;text-align:center;margin-bottom:4px; }
-    .footer-note { font-size:0.7rem;text-align:center;color:#888;margin-top:4px; }
-    .shake { animation:shake 0.35s ease; }
-    @keyframes shake { 0%{transform:translateX(0);}20%{transform:translateX(-5px);}40%{transform:translateX(5px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}100%{transform:translateX(0);} }
-    .pop { animation:pop 0.25s ease; }
-    @keyframes pop { 0%{transform:scale(0.9);}70%{transform:scale(1.05);}100%{transform:scale(1);} }
-    @media (max-width:480px){ .game-wrapper{max-width:94%;} .door-area{width:230px;height:185px;} .speech-bubble{font-size:0.76rem;} }
-  </style>
-</head>
-<body>
-  <div class="game-wrapper">
-    <h1>老竇開門模擬器</h1>
-    <div class="subtitle">
-      星期一至五 <strong>18:00</strong> 才當值。<br />
-      大女＝老竇笑住問候，細女＝老竇火到爆。
-    </div>
-    <div class="status-bar">
-      <div><span class="label">現在時間：</span><span id="time-text">--:--</span></div>
-      <div><span class="label">今日狀態：</span><span id="day-status">載入中...</span></div>
-    </div>
-    <div class="door-area">
-      <div class="speech-bubble" id="bubble">叮叮叮～等人敲門先啦。</div>
-      <div class="door-inner" id="door">
-        <div class="dad-face" id="dad-face">😴</div>
-      </div>
-    </div>
-    <div class="info-line">※ 只有<strong>星期一至五 18:00</strong>先會正式幫大女開門。</div>
-    <div class="buttons-row">
-      <button class="btn-big" id="btn-big">👧 大女敲門</button>
-      <button class="btn-small" id="btn-small">🧒 細女敲門</button>
-    </div>
-    <div class="footer-note">小貼士：你可以每日 18:00 再嚟試下，睇吓老竇心情點。</div>
-  </div>
-<script>
-  function getStatus(){ const now=new Date();const day=now.getDay();const hour=now.getHours();const minute=now.getMinutes();const isWeekend=(day===0||day===6);const isOnDutyTime=(!isWeekend&&hour===18); return{now,day,hour,minute,isWeekend,isOnDutyTime}; }
-  function pad2(n){return n.toString().padStart(2,"0");}
-  function getDayName(day){const map=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];return map[day]||"";}
-  function updateTimePanel(){ const{now,day,hour,minute,isWeekend,isOnDutyTime}=getStatus(); document.getElementById("time-text").textContent=`${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())} ${pad2(hour)}:${pad2(minute)} (${getDayName(day)})`; const dayStatus=document.getElementById("day-status"); if(isWeekend){dayStatus.textContent="週末模式：老竇放假瞓到反眼，唔接客。";} else if(isOnDutyTime){dayStatus.textContent="當值時間：老竇已經收工返屋企，可以幫大女開門。";} else{dayStatus.textContent="平日非 18:00：老竇仲忙緊，心情唔太穩定。";} const doorEl=document.getElementById("door"); if(isWeekend){doorEl.classList.add("resting");}else{doorEl.classList.remove("resting");} }
-  setInterval(updateTimePanel,1000);updateTimePanel();
-  let audioCtx=null;let bgmStarted=false;
-  function initAudio(){if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();}if(audioCtx.state==="suspended"){audioCtx.resume();}}
-  function playBeep(freq=440,duration=0.15,type="sine",volume=0.3){ if(!audioCtx)return; const osc=audioCtx.createOscillator();const gain=audioCtx.createGain(); osc.type=type;osc.frequency.value=freq;gain.gain.value=volume; osc.connect(gain);gain.connect(audioCtx.destination); const now=audioCtx.currentTime;osc.start(now);osc.stop(now+duration);gain.gain.setValueAtTime(volume,now);gain.gain.exponentialRampToValueAtTime(0.001,now+duration); }
-  function startBGM(){ if(bgmStarted)return;bgmStarted=true; function loop(){playBeep(523,0.3,"sine",0.1);setTimeout(()=>playBeep(659,0.3,"sine",0.1),350);setTimeout(()=>playBeep(784,0.3,"sine",0.1),700);setTimeout(loop,1200);} loop(); }
-  function playHappySound(){playBeep(660,0.12,"triangle",0.35);setTimeout(()=>playBeep(880,0.12,"triangle",0.3),120);setTimeout(()=>playBeep(660,0.18,"triangle",0.3),260);}
-  function playAngrySound(){playBeep(160,0.18,"square",0.35);setTimeout(()=>playBeep(120,0.18,"square",0.35),190);}
-  function playNeutralSound(){playBeep(440,0.12,"sine",0.25);}
-  const btnBig=document.getElementById("btn-big");const btnSmall=document.getElementById("btn-small"); const bubble=document.getElementById("bubble");const door=document.getElementById("door");const dadFace=document.getElementById("dad-face");
-  function setDadMood(mood){ dadFace.classList.remove("mad","happy"); if(mood==="happy"){dadFace.classList.add("happy");dadFace.textContent="😊";} else if(mood==="mad"){dadFace.classList.add("mad");dadFace.textContent="😡";} else if(mood==="neutral"){dadFace.textContent="😐";} else{dadFace.textContent="😴";} }
-  function setBubble(text){bubble.textContent=text;bubble.classList.remove("pop");void bubble.offsetWidth;bubble.classList.add("pop");}
-  function doShake(){door.classList.remove("shake");void door.offsetWidth;door.classList.add("shake");}
-  function handleKnock(isBigDaughter){ initAudio();startBGM(); const{isWeekend,isOnDutyTime,hour}=getStatus(); if(isWeekend){setDadMood("sleep");setBubble("週末喎，老竇排咗假期瞓覺，唔理你哋兩姊妹。");playNeutralSound();doShake();door.classList.remove("open");return;} if(isBigDaughter){ if(isOnDutyTime){setDadMood("happy");setBubble("你今日返工辛唔辛苦啊？");playHappySound();door.classList.add("open");} else{setDadMood("neutral");door.classList.remove("open"); if(hour<18){setBubble("未到六點呀大女，老竇仲 OT 緊，等陣先再敲啦。");} else{setBubble("過咗六點啦，你都識夜歸嫁？老竇攰到仆街，聽日準時啲啦。");}playNeutralSound();doShake();}} else{ setDadMood("mad");door.classList.remove("open"); if(isOnDutyTime){setBubble("你係咪做晒所有家務？");} else{ if(hour<18){setBubble("細女你又喺度嘈？未到六點又搵老竇，收聲返去溫書啦！");} else{setBubble("細女，你知唔知幾夜？老竇想瞓覺！再敲我收你電話！");}} playAngrySound();doShake(); } }
-  btnBig.addEventListener("click",()=>handleKnock(true)); btnSmall.addEventListener("click",()=>handleKnock(false)); setDadMood("sleep");
-</script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Mochi Moon Room</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main id="game-shell" aria-label="Mochi Moon Room 3D 解謎逃出密室遊戲">
+      <canvas id="game"></canvas>
+
+      <section id="menu-panel" class="panel">
+        <div class="mascot" aria-hidden="true"></div>
+        <div class="kicker">3D 逃出密室</div>
+        <h1>Mochi Moon Room</h1>
+        <p id="menu-copy">
+          幫可愛嘅 Mochi 喺月光玩具房搵齊三粒星光，啟動門口水晶就可以逃出密室。
+          用手指拖動畫面望四周，點物件解謎。
+        </p>
+        <button id="start-btn" type="button">開始解謎</button>
+      </section>
+
+      <section id="hud" aria-live="polite">
+        <div id="objective">搵線索</div>
+        <div id="inventory"></div>
+      </section>
+
+      <section id="toast" class="hidden"></section>
+
+      <nav id="touch-controls" aria-label="遊戲控制">
+        <button class="ctrl-btn" type="button" data-action="left" aria-label="向左望">↺</button>
+        <button class="ctrl-btn" type="button" data-action="right" aria-label="向右望">↻</button>
+        <button class="ctrl-btn primary" type="button" data-action="interact" aria-label="互動">摸</button>
+        <button class="ctrl-btn" type="button" data-action="hint" aria-label="提示">?</button>
+        <button class="ctrl-btn" type="button" data-action="reset" aria-label="重新開始">重</button>
+      </nav>
+    </main>
+
+    <script type="module" src="game.js"></script>
+  </body>
 </html>
