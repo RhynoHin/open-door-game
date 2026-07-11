@@ -1,830 +1,1177 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-const menu = document.getElementById("menu");
-const roomEntry = document.getElementById("room-entry");
-const roomInput = document.getElementById("room-input");
-const statusPill = document.getElementById("status-pill");
-const toast = document.getElementById("toast");
-const audioBtn = document.getElementById("audio-btn");
+const menuPanel = document.getElementById("menu-panel");
+const startBtn = document.getElementById("start-btn");
+const hud = document.getElementById("hud");
+const objectiveEl = document.getElementById("objective");
+const statusEl = document.getElementById("status");
+const controls = document.getElementById("touch-controls");
+const evidencePanel = document.getElementById("evidence-panel");
+const evidenceList = document.getElementById("evidence-list");
+const closeEvidence = document.getElementById("close-evidence");
 
 const DPR_LIMIT = 2;
-const MAX_HAND = 5;
-const WIN_SCORE = 3;
+const MAX_TRUST = 5;
 
-const wrestlers = [
-  { name: "Hangman Heart", style: "Cowboy striker", color: "#ffd166", finisher: "Buckshot Burst" },
-  { name: "Moxley Road", style: "Wild brawler", color: "#ef476f", finisher: "Paradigm Crash" },
-  { name: "Storm Toniq", style: "Cinema champion", color: "#f8fbff", finisher: "Spotlight Snap" },
-  { name: "Orange Voltage", style: "Lazy genius", color: "#ff9f1c", finisher: "Pocket Pop" },
-  { name: "Jade Titan", style: "Powerhouse", color: "#06d6a0", finisher: "That Storm" },
-  { name: "Omega Spark", style: "Elite technician", color: "#4cc9f0", finisher: "One Wing Flash" },
+const evidence = [
+  {
+    id: "repair",
+    name: "錄音筆維修單",
+    desc: "案發 20:45 至 21:20，藍色錄音筆交咗去法院地下維修櫃。",
+  },
+  {
+    id: "cafe",
+    name: "星光咖啡單",
+    desc: "證人羅曼 21:03 用會員卡買咗熱檸茶，位置係法院對面咖啡店。",
+  },
+  {
+    id: "umbrella",
+    name: "藍傘監控相",
+    desc: "21:07 後門監控影到一個拎藍傘嘅人進入證物室走廊。",
+  },
+  {
+    id: "metro",
+    name: "地鐵入閘紀錄",
+    desc: "被告 20:58 於青雨站入閘，去法院最快都要 18 分鐘。",
+  },
 ];
 
-const cardLibrary = [
-  { id: "chop", name: "Knife-edge Chop", type: "strike", power: 4, hype: 1, text: "快招。贏 counter，多 1 hype。", beats: ["counter"] },
-  { id: "suplex", name: "Snap Suplex", type: "grapple", power: 5, hype: 1, text: "穩陣中招。贏 strike。", beats: ["strike"] },
-  { id: "dive", name: "Top-rope Dive", type: "risk", power: 7, hype: 2, text: "高風險。贏 grapple，輸 counter 會食 backlash。", beats: ["grapple"] },
-  { id: "counter", name: "Reversal", type: "counter", power: 3, hype: 2, text: "反擊。贏 risk 同 taunt。", beats: ["risk", "taunt"] },
-  { id: "taunt", name: "Crowd Taunt", type: "taunt", power: 1, hype: 4, text: "搶氣勢。輸 strike，贏 grapple。", beats: ["grapple"] },
-  { id: "table", name: "Tables Spot", type: "risk", power: 8, hype: 1, text: "大型 spot。平手時雙方都扣血。", beats: ["grapple", "taunt"] },
-  { id: "chain", name: "Chain Wrestling", type: "grapple", power: 4, hype: 3, text: "技術壓制。贏 strike。", beats: ["strike"] },
-  { id: "promo", name: "Hot Promo", type: "taunt", power: 2, hype: 5, text: "咪高峰攻勢。輸 counter。", beats: ["grapple"] },
-  { id: "lariat", name: "Rolling Lariat", type: "strike", power: 6, hype: 0, text: "重擊。贏 counter。", beats: ["counter"] },
-  { id: "save", name: "Manager Save", type: "counter", power: 2, hype: 3, text: "護主救場。贏 risk。", beats: ["risk"] },
+const introLines = [
+  { speaker: "旁白", text: "第一日審判。雨夜證物室案，所有證供都指向被告夏璃。" },
+  { speaker: "SALLY", text: "我係新人辯護律師 SALLY。今日要靠證物，喺證言入面搵出真正嘅裂縫。" },
+  { speaker: "法官", text: "辯方，請準備交叉審問。證人羅曼，開始你嘅證言。" },
+];
+
+const chapters = [
+  {
+    title: "證言一：錄音筆",
+    witness: "羅曼",
+    goal: "指出錄音筆不可能在被告手上",
+    solvedLine: "維修單證明案發時錄音筆唔喺被告手上，第一道證言崩塌。",
+    solution: { statement: 2, evidence: "repair" },
+    statements: [
+      {
+        text: "我九點正喺天台門口，親眼見到被告夏璃跑出嚟。",
+        press: "羅曼話當時燈好暗，但佢堅持自己認得被告外套。",
+      },
+      {
+        text: "佢神色慌張，手上仲攞住一支藍色錄音筆。",
+        press: "藍色錄音筆係案件核心證物。證人講得太肯定，反而奇怪。",
+      },
+      {
+        text: "嗰支錄音筆由始至終都喺被告手上，絕對冇離開過。",
+        press: "「由始至終」呢句太絕對。證物袋入面可能有時間記錄可以反駁。",
+      },
+    ],
+  },
+  {
+    title: "證言二：所在位置",
+    witness: "羅曼",
+    goal: "證明證人唔可能一直喺天台附近",
+    solvedLine: "咖啡單顯示羅曼案發時離開過法院，佢嘅目擊時間唔成立。",
+    solution: { statement: 0, evidence: "cafe" },
+    statements: [
+      {
+        text: "我 20:50 到 21:20 一直喺天台附近等雨停，冇離開過。",
+        press: "佢話自己一直喺天台附近，但語氣明顯慢咗半拍。",
+      },
+      {
+        text: "因為雨太大，根本冇人會走去法院外面。",
+        press: "大雨唔代表冇人出去。買嘢、避人、或者掉包證物都有可能。",
+      },
+      {
+        text: "所以我見到嘅時間同地點，都係完全可靠。",
+        press: "可靠與否，要睇客觀紀錄，而唔係證人自己講。",
+      },
+    ],
+  },
+  {
+    title: "證言三：藍傘",
+    witness: "羅曼",
+    goal: "指出真正進入後門嘅人",
+    solvedLine: "藍傘監控相揭穿羅曼。佢先係雨夜進入證物室走廊嘅人。",
+    solution: { statement: 1, evidence: "umbrella" },
+    statements: [
+      {
+        text: "我冇掂過後門，亦都冇接近證物室走廊。",
+        press: "證人避開『後門』兩個字，好似怕你繼續問落去。",
+      },
+      {
+        text: "我當晚冇帶遮，更加唔可能係監控入面嗰個藍傘人。",
+        press: "佢自己主動提到藍傘人。呢句或者就係最後矛盾。",
+      },
+      {
+        text: "被告先係唯一有機會接觸證物嘅人。",
+        press: "唯一？只要證明另一個人入過後門，呢句就唔成立。",
+      },
+    ],
+  },
 ];
 
 const state = {
-  view: "menu",
   mode: "menu",
-  online: false,
-  room: "",
-  seat: null,
-  peers: 0,
-  connected: false,
-  phase: "menu",
-  round: 1,
-  turnPlayer: 0,
-  players: [],
-  hands: [[], []],
-  deckCursor: 0,
-  picks: [null, null],
-  log: [],
-  effects: [],
-  buttons: [],
-  toastUntil: 0,
-  lastWinner: null,
-  waitingOnline: false,
-  seed: 0,
+  chapter: 0,
+  statement: 0,
+  line: 0,
+  trust: MAX_TRUST,
+  message: "",
+  speaker: "",
+  feedbackKind: "normal",
+  feedbackReturn: "cross",
+  evidenceOpen: false,
+  sound: true,
+  audioCtx: null,
+  flash: 0,
+  shake: 0,
+  time: 0,
+  pressed: new Set(),
+  solved: [],
 };
-
-let socket = null;
-let audio = null;
-let musicTimer = 0;
-let musicOn = false;
-let lastTime = performance.now();
-let virtualNow = 0;
-
-function resize() {
-  const ratio = Math.min(window.devicePixelRatio || 1, DPR_LIMIT);
-  const w = Math.max(320, window.innerWidth);
-  const h = Math.max(480, window.innerHeight);
-  canvas.width = Math.floor(w * ratio);
-  canvas.height = Math.floor(h * ratio);
-  canvas.style.width = `${w}px`;
-  canvas.style.height = `${h}px`;
-  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  draw();
-}
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
-function rnd(seed) {
-  let value = seed || 1234567;
-  return () => {
-    value = (value * 1664525 + 1013904223) >>> 0;
-    return value / 4294967296;
-  };
+function resize() {
+  const ratio = Math.min(window.devicePixelRatio || 1, DPR_LIMIT);
+  const width = Math.max(320, window.innerWidth);
+  const height = Math.max(320, window.innerHeight);
+  canvas.width = Math.floor(width * ratio);
+  canvas.height = Math.floor(height * ratio);
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  draw();
 }
 
-function buildDeck(seed) {
-  const random = rnd(seed);
-  const deck = [];
-  for (let i = 0; i < 4; i += 1) {
-    for (const card of cardLibrary) deck.push(card.id);
-  }
-  for (let i = deck.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(random() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
-  }
-  return deck;
-}
-
-function cardById(id) {
-  return cardLibrary.find((card) => card.id === id) || cardLibrary[0];
-}
-
-function freshMatch(mode, seed = Date.now()) {
-  const deck = buildDeck(seed);
-  const random = rnd(seed + 99);
-  const p0 = wrestlers[Math.floor(random() * wrestlers.length)];
-  let p1 = wrestlers[Math.floor(random() * wrestlers.length)];
-  if (p1.name === p0.name) p1 = wrestlers[(wrestlers.indexOf(p0) + 2) % wrestlers.length];
-
-  Object.assign(state, {
-    view: "game",
-    mode,
-    phase: "pick",
-    round: 1,
-    turnPlayer: 0,
-    players: [
-      makePlayer(p0, "Player 1"),
-      makePlayer(p1, "Player 2"),
-    ],
-    hands: [[], []],
-    deck,
-    deckCursor: 0,
-    picks: [null, null],
-    log: ["Bell rings. 揀卡出招。"],
-    effects: [],
-    lastWinner: null,
-    waitingOnline: false,
-    seed,
-  });
-
-  drawCards(0, MAX_HAND);
-  drawCards(1, MAX_HAND);
-  menu.classList.add("hidden");
-  roomEntry.classList.add("hidden");
-  showToast(mode === "offline" ? "Offline hot-seat：輪流揀卡，唔好偷睇。" : "Online match ready.");
-  syncStatus();
-  pulse("bell", 16);
-  sfx("bell");
-  publishState("start");
-}
-
-function makePlayer(wrestler, label) {
-  return {
-    label,
-    name: wrestler.name,
-    style: wrestler.style,
-    color: wrestler.color,
-    finisher: wrestler.finisher,
-    hp: 24,
-    hype: 0,
-    score: 0,
-    pin: 0,
-  };
-}
-
-function drawCards(player, count) {
-  while (state.hands[player].length < MAX_HAND && count > 0) {
-    if (state.deckCursor >= state.deck.length) state.deckCursor = 0;
-    state.hands[player].push(state.deck[state.deckCursor]);
-    state.deckCursor += 1;
-    count -= 1;
-  }
-}
-
-function showToast(message, duration = 2600) {
-  toast.textContent = message;
-  toast.classList.remove("hidden");
-  state.toastUntil = performance.now() + duration;
-}
-
-function syncStatus() {
-  if (state.online) {
-    const role = state.seat == null ? "Spectator" : `P${state.seat + 1}`;
-    statusPill.textContent = `${state.room || "Room"} | ${role} | ${state.peers}/2 online`;
-  } else {
-    statusPill.textContent = state.phase === "menu" ? "Menu" : `Offline | Round ${state.round}`;
-  }
-}
-
-function cardOutcome(a, b) {
-  if (a.type === b.type) return 0;
-  if (a.beats.includes(b.type)) return 0;
-  if (b.beats.includes(a.type)) return 1;
-  return a.power + a.hype >= b.power + b.hype ? 0 : 1;
-}
-
-function selectCard(player, handIndex) {
-  if (state.phase !== "pick") return;
-  if (state.online && player !== state.seat) return;
-  if (!state.online && player !== state.turnPlayer) return;
-  if (state.picks[player] != null) return;
-
-  state.picks[player] = handIndex;
-  pulse("select", 8);
-  sfx("tap");
-
-  if (state.online) {
-    send({ type: "action", action: { kind: "pick", player, round: state.round, handIndex } });
-    state.waitingOnline = state.picks[1 - player] == null;
-  } else {
-    state.turnPlayer = 1 - state.turnPlayer;
-    if (state.picks[state.turnPlayer] == null) showToast(`${state.players[state.turnPlayer].label} 揀卡`);
-  }
-
-  if (state.picks[0] != null && state.picks[1] != null) resolveRound();
-  syncStatus();
-}
-
-function resolveRound() {
-  state.phase = "reveal";
-  state.waitingOnline = false;
-
-  const cards = [0, 1].map((player) => cardById(state.hands[player][state.picks[player]]));
-  const winner = cardOutcome(cards[0], cards[1]);
-  const loser = 1 - winner;
-  const tie = cards[0].type === cards[1].type;
-  const damage = tie ? Math.max(2, Math.floor((cards[0].power + cards[1].power) / 2)) : cards[winner].power + Math.floor(state.players[winner].hype / 3);
-
-  state.players[0].hype = clamp(state.players[0].hype + cards[0].hype, 0, 12);
-  state.players[1].hype = clamp(state.players[1].hype + cards[1].hype, 0, 12);
-
-  if (tie) {
-    state.players[0].hp = clamp(state.players[0].hp - damage, 0, 24);
-    state.players[1].hp = clamp(state.players[1].hp - damage, 0, 24);
-    state.log.unshift(`Double impact! ${cards[0].name} vs ${cards[1].name}，雙方各扣 ${damage}。`);
-    pulse("clash", 30);
-  } else {
-    state.players[loser].hp = clamp(state.players[loser].hp - damage, 0, 24);
-    state.players[winner].hype = clamp(state.players[winner].hype + 1, 0, 12);
-    state.players[winner].pin += state.players[loser].hp <= 0 ? 2 : 1;
-    state.lastWinner = winner;
-    state.log.unshift(`${state.players[winner].name} 用 ${cards[winner].name} 壓過 ${cards[loser].name}，扣 ${damage}！`);
-    pulse(winner === 0 ? "left" : "right", 36);
-  }
-
-  if (!tie && state.players[winner].hype >= 10) {
-    state.players[loser].hp = clamp(state.players[loser].hp - 4, 0, 24);
-    state.players[winner].hype = 4;
-    state.log.unshift(`${state.players[winner].finisher}! 全場爆響，再扣 4。`);
-    pulse("finisher", 54);
-    sfx("finisher");
-  } else {
-    sfx(tie ? "slam" : "hit");
-  }
-
-  state.hands[0].splice(state.picks[0], 1);
-  state.hands[1].splice(state.picks[1], 1);
-  state.picks = [null, null];
-  drawCards(0, 1);
-  drawCards(1, 1);
-
-  const matchWinner = getMatchWinner();
-  if (matchWinner != null) {
-    state.players[matchWinner].score += 1;
-    state.phase = state.players[matchWinner].score >= WIN_SCORE ? "gameover" : "between";
-    state.log.unshift(`${state.players[matchWinner].name} scores the fall!`);
-    showToast(state.phase === "gameover" ? `${state.players[matchWinner].name} 贏出成場比賽！` : "Pinfall! 下一 fall 準備。", 3200);
-  } else {
-    state.phase = "between";
-  }
-
-  publishState("resolve");
-  setTimeout(() => {
-    if (state.phase === "between") nextRound();
-  }, 1650);
-}
-
-function getMatchWinner() {
-  if (state.players[0].hp <= 0 && state.players[1].hp <= 0) return state.lastWinner ?? 0;
-  if (state.players[0].hp <= 0 || state.players[1].pin >= 3) return 1;
-  if (state.players[1].hp <= 0 || state.players[0].pin >= 3) return 0;
-  return null;
-}
-
-function nextRound() {
-  if (state.phase !== "between") return;
-  state.round += 1;
-  state.turnPlayer = state.online ? state.seat ?? 0 : 0;
-  state.phase = "pick";
-  state.players.forEach((player) => {
-    player.hp = clamp(player.hp + 4, 0, 24);
-    player.pin = 0;
-  });
-  state.log.unshift(`Round ${state.round}: 雙方喘一口氣，再開波。`);
-  publishState("round");
-  syncStatus();
-}
-
-function resetToMenu() {
-  state.view = "menu";
-  state.phase = "menu";
-  state.online = false;
-  state.connected = false;
-  state.seat = null;
-  state.room = "";
-  if (socket) socket.close();
-  socket = null;
-  menu.classList.remove("hidden");
-  roomEntry.classList.add("hidden");
-  syncStatus();
-}
-
-function startOffline() {
-  state.online = false;
-  freshMatch("offline", Date.now());
-}
-
-function startOnline(hosting) {
-  const requested = hosting ? "" : roomInput.value.trim().toUpperCase();
-  const query = requested ? `?room=${encodeURIComponent(requested)}` : "";
-  const protocol = location.protocol === "https:" ? "wss" : "ws";
-  socket = new WebSocket(`${protocol}://${location.host}/ws${query}`);
-  state.online = true;
-  state.mode = hosting ? "online-host" : "online-join";
-  statusPill.textContent = "Connecting...";
-
-  socket.addEventListener("open", () => {
-    state.connected = true;
-    showToast("已連線。等齊兩個玩家就可以打。");
-  });
-
-  socket.addEventListener("message", (event) => {
-    const message = JSON.parse(event.data);
-    if (message.type === "welcome") {
-      state.room = message.room;
-      state.seat = message.seat;
-      state.peers = message.peers;
-      if (state.seat == null) showToast("房滿，你而家係觀眾。");
-      syncStatus();
-      if (!message.hasState && state.seat === 0) freshMatch("online", Date.now());
-    }
-    if (message.type === "peer") {
-      state.peers = message.peers;
-      syncStatus();
-      if (state.peers < 2) showToast(`Room ${state.room}: 等另一位玩家。`, 2200);
-    }
-    if (message.type === "state" && message.state) {
-      applyRemoteState(message.state);
-    }
-    if (message.type === "action" && message.action) {
-      applyRemoteAction(message.action);
-    }
-  });
-
-  socket.addEventListener("close", () => {
-    state.connected = false;
-    syncStatus();
-    showToast("Online 連線已中斷。");
-  });
-}
-
-function send(message) {
-  if (socket && socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(message));
-}
-
-function publishState(reason) {
-  if (!state.online || state.seat !== 0) return;
-  send({ type: "state", reason, state: packState() });
-}
-
-function packState() {
-  return {
-    view: state.view,
-    mode: state.mode,
-    phase: state.phase,
-    round: state.round,
-    players: state.players,
-    hands: state.hands,
-    deck: state.deck,
-    deckCursor: state.deckCursor,
-    picks: state.picks,
-    log: state.log.slice(0, 6),
-    lastWinner: state.lastWinner,
-    seed: state.seed,
-  };
-}
-
-function applyRemoteState(remote) {
-  Object.assign(state, remote);
-  state.online = true;
-  menu.classList.add("hidden");
-  roomEntry.classList.add("hidden");
-  syncStatus();
-}
-
-function applyRemoteAction(action) {
-  if (action.kind !== "pick" || action.round !== state.round) return;
-  if (state.picks[action.player] == null) {
-    state.picks[action.player] = action.handIndex;
-    if (state.picks[0] != null && state.picks[1] != null) resolveRound();
-    else state.waitingOnline = true;
-  }
+function size() {
+  return { w: canvas.clientWidth || window.innerWidth, h: canvas.clientHeight || window.innerHeight };
 }
 
 function ensureAudio() {
-  if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
-  if (audio.state === "suspended") audio.resume();
+  if (!state.sound || state.audioCtx) return;
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return;
+  state.audioCtx = new AudioContext();
 }
 
-function tone(freq, duration, type = "sine", gain = 0.04, delay = 0) {
-  if (!audio) return;
-  const osc = audio.createOscillator();
-  const amp = audio.createGain();
-  osc.type = type;
-  osc.frequency.setValueAtTime(freq, audio.currentTime + delay);
-  amp.gain.setValueAtTime(0.0001, audio.currentTime + delay);
-  amp.gain.exponentialRampToValueAtTime(gain, audio.currentTime + delay + 0.015);
-  amp.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + delay + duration);
-  osc.connect(amp).connect(audio.destination);
-  osc.start(audio.currentTime + delay);
-  osc.stop(audio.currentTime + delay + duration + 0.03);
-}
-
-function sfx(type) {
+function tone(freq, duration = 0.1, type = "square", volume = 0.04, delay = 0) {
+  if (!state.sound) return;
   ensureAudio();
-  if (type === "bell") [740, 555, 740].forEach((f, i) => tone(f, 0.18, "triangle", 0.06, i * 0.12));
-  else if (type === "hit") [110, 185, 260].forEach((f, i) => tone(f, 0.08, "square", 0.045, i * 0.035));
-  else if (type === "slam") tone(80, 0.24, "sawtooth", 0.05);
-  else if (type === "finisher") [220, 330, 494, 660, 880].forEach((f, i) => tone(f, 0.18, "sawtooth", 0.05, i * 0.055));
-  else tone(520, 0.06, "triangle", 0.025);
+  const ac = state.audioCtx;
+  if (!ac) return;
+  const osc = ac.createOscillator();
+  const gain = ac.createGain();
+  const start = ac.currentTime + delay;
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, start);
+  gain.gain.setValueAtTime(0.0001, start);
+  gain.gain.linearRampToValueAtTime(volume, start + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+  osc.connect(gain);
+  gain.connect(ac.destination);
+  osc.start(start);
+  osc.stop(start + duration + 0.04);
 }
 
-function updateMusic(dt) {
-  if (!musicOn || !audio) return;
-  musicTimer -= dt;
-  if (musicTimer > 0) return;
-  const beat = [98, 98, 147, 196, 147, 98, 220, 196];
-  const index = Math.floor(performance.now() / 180) % beat.length;
-  tone(beat[index], 0.08, index % 2 ? "square" : "sawtooth", 0.018);
-  if (index % 4 === 0) tone(49, 0.1, "sine", 0.03);
-  musicTimer = 0.18;
+function startGame() {
+  state.mode = "intro";
+  state.chapter = 0;
+  state.statement = 0;
+  state.line = 0;
+  state.trust = MAX_TRUST;
+  state.solved = [];
+  state.pressed.clear();
+  state.message = introLines[0].text;
+  state.speaker = introLines[0].speaker;
+  menuPanel.classList.add("hidden");
+  hud.classList.remove("hidden");
+  controls.classList.remove("hidden");
+  ensureAudio();
+  tone(392, 0.08, "square", 0.035);
+  tone(523.25, 0.12, "square", 0.035, 0.08);
+  syncHud();
 }
 
-function pulse(kind, count) {
-  const colors = {
-    bell: "#ffd166",
-    select: "#4cc9f0",
-    clash: "#f8fbff",
-    left: state.players[0]?.color || "#ffd166",
-    right: state.players[1]?.color || "#ef476f",
-    finisher: "#06d6a0",
-  };
-  for (let i = 0; i < count; i += 1) {
-    state.effects.push({
-      x: canvas.clientWidth * (kind === "right" ? 0.68 : kind === "left" ? 0.32 : 0.5) + (Math.random() - 0.5) * 80,
-      y: canvas.clientHeight * (0.33 + Math.random() * 0.25),
-      vx: (Math.random() - 0.5) * 120,
-      vy: -60 - Math.random() * 180,
-      life: 0.55 + Math.random() * 0.45,
-      age: 0,
-      color: colors[kind] || "#ffffff",
-    });
+function currentChapter() {
+  return chapters[state.chapter];
+}
+
+function currentStatement() {
+  return currentChapter().statements[state.statement];
+}
+
+function syncHud() {
+  if (state.mode === "menu") return;
+  const chapter = currentChapter();
+  if (state.mode === "verdict") objectiveEl.textContent = "判決：無罪";
+  else if (state.mode === "gameover") objectiveEl.textContent = "審判失敗";
+  else objectiveEl.textContent = chapter ? chapter.title : "第一日審判";
+  const progress = Math.round((state.solved.length / chapters.length) * 100);
+  statusEl.textContent = `信任 ${state.trust}/${MAX_TRUST} · 證物 ${evidence.length} · 進度 ${progress}% · ${state.sound ? "聲音開" : "靜音"}`;
+}
+
+function enterCross() {
+  state.mode = "cross";
+  state.statement = 0;
+  const chapter = currentChapter();
+  state.speaker = chapter.witness;
+  state.message = chapter.statements[0].text;
+  state.feedbackKind = "normal";
+  syncHud();
+}
+
+function nextStatement(delta) {
+  if (state.mode !== "cross") return;
+  const statements = currentChapter().statements;
+  state.statement = (state.statement + delta + statements.length) % statements.length;
+  state.speaker = currentChapter().witness;
+  state.message = currentStatement().text;
+  tone(220, 0.04, "square", 0.018);
+}
+
+function advance() {
+  if (state.mode === "intro") {
+    state.line += 1;
+    if (state.line >= introLines.length) {
+      enterCross();
+      return;
+    }
+    state.speaker = introLines[state.line].speaker;
+    state.message = introLines[state.line].text;
+    tone(330, 0.05, "square", 0.02);
+  } else if (state.mode === "cross") {
+    nextStatement(1);
+  } else if (state.mode === "feedback") {
+    if (state.feedbackReturn === "nextChapter") {
+      state.chapter += 1;
+      if (state.chapter >= chapters.length) enterVerdict();
+      else enterCross();
+    } else if (state.feedbackReturn === "gameover") {
+      state.mode = "gameover";
+      state.speaker = "法官";
+      state.message = "辯方信任耗盡。本庭暫時休庭。";
+    } else {
+      state.mode = "cross";
+      state.speaker = currentChapter().witness;
+      state.message = currentStatement().text;
+      state.feedbackKind = "normal";
+    }
+  } else if (state.mode === "verdict" || state.mode === "gameover") {
+    resetGame();
   }
+  syncHud();
+}
+
+function pressStatement() {
+  if (state.mode !== "cross") return;
+  const key = `${state.chapter}:${state.statement}`;
+  state.pressed.add(key);
+  state.mode = "feedback";
+  state.feedbackKind = "press";
+  state.feedbackReturn = "cross";
+  state.speaker = "SALLY";
+  state.message = currentStatement().press;
+  state.flash = 0.12;
+  tone(294, 0.06, "triangle", 0.025);
+  syncHud();
+}
+
+function openEvidence() {
+  if (state.mode !== "cross") return;
+  state.evidenceOpen = true;
+  evidencePanel.classList.remove("hidden");
+  evidenceList.innerHTML = "";
+  for (const item of evidence) {
+    const button = document.createElement("button");
+    button.className = "evidence-btn";
+    button.type = "button";
+    button.innerHTML = `<strong>${item.name}</strong><span>${item.desc}</span>`;
+    button.addEventListener("click", () => presentEvidence(item.id));
+    evidenceList.appendChild(button);
+  }
+}
+
+function closeEvidencePanel() {
+  state.evidenceOpen = false;
+  evidencePanel.classList.add("hidden");
+}
+
+function presentEvidence(id) {
+  if (state.mode !== "cross") return;
+  closeEvidencePanel();
+  const chapter = currentChapter();
+  const ok = chapter.solution.statement === state.statement && chapter.solution.evidence === id;
+  if (ok) {
+    state.mode = "feedback";
+    state.feedbackKind = "objection";
+    state.feedbackReturn = "nextChapter";
+    state.speaker = "SALLY";
+    state.message = `反對！${chapter.solvedLine}`;
+    state.solved.push(chapter.title);
+    state.flash = 1;
+    state.shake = 0.45;
+    tone(523.25, 0.08, "square", 0.05);
+    tone(659.25, 0.08, "square", 0.05, 0.06);
+    tone(880, 0.18, "square", 0.05, 0.12);
+  } else {
+    state.trust = clamp(state.trust - 1, 0, MAX_TRUST);
+    state.mode = "feedback";
+    state.feedbackKind = "wrong";
+    state.feedbackReturn = state.trust <= 0 ? "gameover" : "cross";
+    state.speaker = "檢察官 葉城";
+    state.message = state.trust <= 0
+      ? "辯方，呢個出示完全無關。你已經冇足夠信任繼續審問。"
+      : "呢件證物同呢句證言無矛盾。辯方，請慎重。";
+    state.flash = 0.35;
+    state.shake = 0.22;
+    tone(110, 0.16, "sawtooth", 0.035);
+  }
+  syncHud();
+}
+
+function enterVerdict() {
+  state.mode = "verdict";
+  state.speaker = "法官";
+  state.message = "本庭確認控方證言存在重大矛盾。被告夏璃，無罪！";
+  state.feedbackKind = "verdict";
+  state.flash = 1;
+  tone(392, 0.1, "square", 0.04);
+  tone(523.25, 0.14, "square", 0.04, 0.1);
+  tone(783.99, 0.24, "square", 0.04, 0.22);
+  syncHud();
+}
+
+function resetGame() {
+  state.mode = "menu";
+  menuPanel.classList.remove("hidden");
+  hud.classList.add("hidden");
+  controls.classList.add("hidden");
+  closeEvidencePanel();
+  syncHud();
+}
+
+function toggleSound() {
+  state.sound = !state.sound;
+  if (!state.sound && state.audioCtx) {
+    state.audioCtx.close();
+    state.audioCtx = null;
+  } else {
+    tone(440, 0.08, "square", 0.03);
+  }
+  syncHud();
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+
+function handleAction(action) {
+  if (action === "next") nextStatement(1);
+  if (action === "prev") nextStatement(-1);
+  if (action === "press") pressStatement();
+  if (action === "present") openEvidence();
+  if (action === "advance") advance();
+  if (action === "sound") toggleSound();
+  if (action === "full") toggleFullscreen();
 }
 
 function update(dt) {
-  updateMusic(dt);
-  for (let i = state.effects.length - 1; i >= 0; i -= 1) {
-    const fx = state.effects[i];
-    fx.age += dt;
-    fx.x += fx.vx * dt;
-    fx.y += fx.vy * dt;
-    fx.vy += 260 * dt;
-    if (fx.age >= fx.life) state.effects.splice(i, 1);
-  }
-  if (state.toastUntil && performance.now() > state.toastUntil) {
-    toast.classList.add("hidden");
-    state.toastUntil = 0;
-  }
+  state.time += dt;
+  state.flash = Math.max(0, state.flash - dt * 1.8);
+  state.shake = Math.max(0, state.shake - dt * 1.9);
 }
 
 function draw() {
-  const w = canvas.clientWidth;
-  const h = canvas.clientHeight;
-  state.buttons = [];
-  drawArena(w, h);
-  if (state.view === "game") {
-    drawScoreboard(w, h);
-    drawWrestler(0, w * 0.27, h * 0.39);
-    drawWrestler(1, w * 0.73, h * 0.39);
-    drawRing(w, h);
-    drawHands(w, h);
-    drawLog(w, h);
-  } else {
-    drawAttract(w, h);
+  const { w, h } = size();
+  ctx.clearRect(0, 0, w, h);
+  drawBackdrop(w, h);
+  if (state.mode === "menu") {
+    drawMenuScene(w, h);
+    return;
   }
-  drawEffects();
+  const ox = state.shake ? (Math.random() - 0.5) * state.shake * 18 : 0;
+  const oy = state.shake ? (Math.random() - 0.5) * state.shake * 10 : 0;
+  ctx.save();
+  ctx.translate(ox, oy);
+  drawTopScreen(w, h);
+  drawBottomScreen(w, h);
+  ctx.restore();
+  drawFlash(w, h);
 }
 
-function drawArena(w, h) {
+function drawBackdrop(w, h) {
   const grad = ctx.createLinearGradient(0, 0, w, h);
-  grad.addColorStop(0, "#111827");
-  grad.addColorStop(0.45, "#080b12");
-  grad.addColorStop(1, "#15111f");
+  grad.addColorStop(0, "#091933");
+  grad.addColorStop(0.48, "#0e2145");
+  grad.addColorStop(1, "#140f24");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, w, h);
-
-  ctx.strokeStyle = "rgba(76, 201, 240, 0.14)";
-  ctx.lineWidth = 2;
-  for (let i = 0; i < 16; i += 1) {
-    const x = (i / 15) * w;
-    ctx.beginPath();
-    ctx.moveTo(w / 2, h * 0.42);
-    ctx.lineTo(x, h);
-    ctx.stroke();
-  }
-
-  for (let i = 0; i < 42; i += 1) {
-    const x = (i * 83) % w;
-    const y = 72 + ((i * 47) % Math.max(120, h * 0.5));
-    ctx.fillStyle = i % 3 === 0 ? "rgba(255,209,102,0.26)" : "rgba(76,201,240,0.18)";
-    ctx.fillRect(x, y, 3, 12);
+  ctx.fillStyle = "rgba(255,255,255,0.05)";
+  for (let i = 0; i < 70; i += 1) {
+    const x = (i * 67 + state.time * 9) % w;
+    const y = (i * 41) % h;
+    ctx.fillRect(x, y, 2, 2);
   }
 }
 
-function drawAttract(w, h) {
+function drawMenuScene(w, h) {
   ctx.save();
-  ctx.translate(w / 2, h * 0.34);
-  for (let i = 0; i < 9; i += 1) {
-    ctx.rotate((Math.PI * 2) / 9);
-    ctx.fillStyle = i % 2 ? "rgba(239,71,111,0.24)" : "rgba(255,209,102,0.24)";
-    ctx.fillRect(0, -6, Math.min(w, h) * 0.45, 12);
-  }
+  const floorY = h * 0.78;
+  drawCourtBackdrop(w, h, floorY);
+  drawLargeSally(w * 0.23, floorY + 18, 1.05, "ready");
+  drawLargeProsecutor(w * 0.77, floorY + 18, 1.05, "smirk");
   ctx.restore();
-  drawRing(w, h);
 }
 
-function drawScoreboard(w, h) {
-  const y = 58;
-  drawPanel(16, y, w - 32, 72, "rgba(8,11,18,0.68)");
-  state.players.forEach((player, index) => {
-    const x = index === 0 ? 28 : w / 2 + 10;
-    const width = w / 2 - 38;
-    ctx.fillStyle = player.color;
-    ctx.font = "900 15px system-ui, sans-serif";
-    ctx.textAlign = "left";
-    ctx.fillText(`${player.label}: ${player.name}`, x, y + 22);
-    ctx.fillStyle = "#b8c5d1";
-    ctx.font = "800 11px system-ui, sans-serif";
-    ctx.fillText(`${player.style} | Falls ${player.score}/${WIN_SCORE}`, x, y + 40);
-    meter(x, y + 50, width, 10, player.hp / 24, "#ef476f", "HP");
-    meter(x, y + 62, width, 8, player.hype / 12, "#ffd166", "HYPE");
-  });
+function drawTopScreen(w, h) {
+  const topH = Math.floor(h * 0.48);
+  drawCourtBackdrop(w, topH, topH - 18);
+
+  const focus = focusCharacter();
+  const baseY = topH + 28;
+  if (focus === "sally") drawLargeSally(w * 0.45, baseY, 0.92, state.feedbackKind === "objection" ? "objection" : "ready");
+  if (focus === "witness") drawLargeWitness(w * 0.5, baseY, 0.9, state.mode === "feedback" ? "worried" : "talk");
+  if (focus === "prosecutor") drawLargeProsecutor(w * 0.55, baseY, 0.9, "smirk");
+  if (focus === "judge") drawLargeJudge(w * 0.5, baseY, 0.88, state.mode === "verdict" ? "verdict" : "stern");
+
+  ctx.fillStyle = "#06101f";
+  ctx.fillRect(0, topH, w, 8);
+  ctx.fillStyle = "rgba(5,10,20,0.72)";
+  ctx.fillRect(0, topH - 22, w, 22);
+  ctx.fillStyle = "#f8fbff";
+  ctx.font = "900 12px system-ui, sans-serif";
+  ctx.fillText(`${roleLabel(focus)} SCREEN`, 12, topH - 8);
+
+  if (state.mode === "feedback" && state.feedbackKind === "objection") drawCutIn(w, topH, "反對!");
+  if (state.mode === "verdict") drawCutIn(w, topH, "無罪!");
+  if (state.mode === "gameover") drawCutIn(w, topH, "休庭");
 }
 
-function meter(x, y, width, height, amount, color) {
+function focusCharacter() {
+  if (state.mode === "intro") {
+    if (state.speaker === "SALLY") return "sally";
+    if (state.speaker === "法官") return "judge";
+    return "judge";
+  }
+  if (state.mode === "verdict" || state.mode === "gameover") return "judge";
+  if (state.mode === "feedback") {
+    if (state.feedbackKind === "objection" || state.feedbackKind === "press") return "sally";
+    if (state.feedbackKind === "wrong") return "prosecutor";
+  }
+  return "witness";
+}
+
+function roleLabel(role) {
+  if (role === "sally") return "DEFENSE";
+  if (role === "prosecutor") return "PROSECUTION";
+  if (role === "judge") return "COURT";
+  return "WITNESS";
+}
+
+function drawCourtBackdrop(w, h, floorY) {
+  const wall = ctx.createLinearGradient(0, 0, 0, h);
+  wall.addColorStop(0, "#8d633b");
+  wall.addColorStop(0.5, "#593720");
+  wall.addColorStop(1, "#24151a");
+  ctx.fillStyle = wall;
+  ctx.fillRect(0, 0, w, h);
+  for (let x = -40; x < w; x += 92) {
+    ctx.fillStyle = x % 184 === 0 ? "rgba(255,230,160,0.18)" : "rgba(20,10,12,0.28)";
+    ctx.fillRect(x, 0, 38, h);
+  }
   ctx.fillStyle = "rgba(255,255,255,0.12)";
-  ctx.fillRect(x, y, width, height);
-  ctx.fillStyle = color;
-  ctx.fillRect(x, y, width * clamp(amount, 0, 1), height);
+  ctx.fillRect(w * 0.1, 24, w * 0.8, 4);
+  ctx.fillStyle = "#2a1719";
+  ctx.fillRect(0, floorY, w, h - floorY);
+  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.beginPath();
+  ctx.ellipse(w / 2, floorY + 16, w * 0.32, 22, 0, 0, Math.PI * 2);
+  ctx.fill();
 }
 
-function drawRing(w, h) {
-  const ringW = Math.min(w * 0.78, 760);
-  const ringH = Math.min(h * 0.31, 230);
-  const x = (w - ringW) / 2;
-  const y = h * 0.43;
-  ctx.fillStyle = "#dfe7ef";
-  ctx.beginPath();
-  ctx.moveTo(x + 70, y);
-  ctx.lineTo(x + ringW - 70, y);
-  ctx.lineTo(x + ringW, y + ringH);
-  ctx.lineTo(x, y + ringH);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = "#73808e";
-  ctx.fillRect(x + 18, y + ringH - 18, ringW - 36, 14);
-  for (let i = 0; i < 3; i += 1) {
-    ctx.strokeStyle = i === 1 ? "#ef476f" : "#4cc9f0";
-    ctx.lineWidth = 4;
-    const ry = y + 24 + i * 34;
-    ctx.beginPath();
-    ctx.moveTo(x + 22, ry);
-    ctx.lineTo(x + ringW - 22, ry);
-    ctx.stroke();
+function drawBottomScreen(w, h) {
+  const topH = Math.floor(h * 0.48);
+  const y = topH + 8;
+  const bottomH = h - y;
+  ctx.fillStyle = "#0a1326";
+  ctx.fillRect(0, y, w, bottomH);
+  ctx.strokeStyle = "rgba(145,215,255,0.34)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(10, y + 10, w - 20, bottomH - 72);
+
+  drawTrust(w - 166, y + 24);
+  drawStatementTabs(22, y + 22);
+  const dialogueY = y + 62;
+  const dialogueH = Math.max(72, h - dialogueY - 76);
+  drawDialogueBox(22, dialogueY, w - 44, dialogueH);
+  drawBottomHint(w, h);
+}
+
+function drawTrust(x, y) {
+  ctx.fillStyle = "#f8fbff";
+  ctx.font = "900 12px system-ui, sans-serif";
+  ctx.fillText("信任", x, y);
+  for (let i = 0; i < MAX_TRUST; i += 1) {
+    ctx.fillStyle = i < state.trust ? "#55d6a8" : "rgba(255,255,255,0.18)";
+    ctx.fillRect(x + 38 + i * 20, y - 11, 14, 14);
   }
-  [["#ffd166", x + 26], ["#ef476f", x + ringW - 26]].forEach(([color, px]) => {
-    ctx.fillStyle = color;
-    ctx.fillRect(px - 8, y - 8, 16, ringH + 26);
-  });
 }
 
-function drawWrestler(index, x, y) {
-  const p = state.players[index];
-  if (!p) return;
-  const bob = Math.sin(performance.now() * 0.004 + index) * 5;
-  ctx.save();
-  ctx.translate(x, y + bob);
-  if (index === 1) ctx.scale(-1, 1);
-  ctx.fillStyle = "rgba(0,0,0,0.24)";
-  ctx.beginPath();
-  ctx.ellipse(0, 120, 62, 18, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = p.color;
-  ctx.fillRect(-36, 18, 72, 74);
-  ctx.fillStyle = "#f2c7a9";
-  ctx.beginPath();
-  ctx.arc(0, -6, 28, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#101827";
-  ctx.fillRect(-24, -34, 48, 16);
-  ctx.fillStyle = p.color;
-  ctx.fillRect(-58, 26, 24, 20);
-  ctx.fillRect(34, 26, 24, 20);
-  ctx.fillStyle = "#101827";
-  ctx.fillRect(-30, 92, 22, 52);
-  ctx.fillRect(8, 92, 22, 52);
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "900 10px system-ui, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText(p.name.split(" ")[0], 0, 60);
-  ctx.restore();
+function drawStatementTabs(x, y) {
+  if (!currentChapter()) return;
+  const total = currentChapter().statements.length;
+  ctx.font = "900 12px system-ui, sans-serif";
+  for (let i = 0; i < total; i += 1) {
+    ctx.fillStyle = i === state.statement && state.mode === "cross" ? "#ffd15f" : "rgba(255,255,255,0.18)";
+    roundedRect(x + i * 34, y - 14, 26, 20, 5, true);
+    ctx.fillStyle = i === state.statement && state.mode === "cross" ? "#111827" : "#f8fbff";
+    ctx.fillText(String(i + 1), x + i * 34 + 9, y + 1);
+  }
 }
 
-function drawHands(w, h) {
-  const handY = h - 155;
-  const cardW = clamp((w - 54) / MAX_HAND, 58, 118);
-  const cardH = 128;
-  const active = state.online ? state.seat : state.turnPlayer;
+function drawDialogueBox(x, y, w, h) {
+  ctx.fillStyle = "#071020";
+  roundedRect(x, y, w, h, 8, true);
+  ctx.strokeStyle = state.feedbackKind === "wrong" ? "#ff4d6d" : state.feedbackKind === "objection" ? "#ffd15f" : "#4aa3ff";
+  ctx.lineWidth = 3;
+  roundedRect(x, y, w, h, 8, false);
 
-  [0, 1].forEach((player) => {
-    const y = player === 0 ? handY : 138;
-    const visible = state.online
-      ? player === state.seat || state.phase !== "pick"
-      : player === state.turnPlayer || state.phase !== "pick";
-    state.hands[player].forEach((id, i) => {
-      const x = 18 + i * (cardW + 6);
-      const mirroredX = player === 1 ? w - 18 - cardW - i * (cardW + 6) : x;
-      const actionable = state.phase === "pick" && player === active && state.picks[player] == null;
-      drawCard(mirroredX, y, cardW, cardH, visible ? cardById(id) : null, actionable, player, i);
-    });
-  });
+  ctx.fillStyle = state.feedbackKind === "press" ? "#55d6a8" : "#ffd15f";
+  ctx.font = "950 16px system-ui, sans-serif";
+  ctx.fillText(state.speaker || "SALLY", x + 16, y + 28);
 
   ctx.fillStyle = "#f8fbff";
-  ctx.font = "900 14px system-ui, sans-serif";
-  ctx.textAlign = "center";
-  if (state.phase === "pick") {
-    const msg = state.online
-      ? state.seat == null ? "Spectating" : state.picks[state.seat] == null ? "揀你張卡" : "等對手出招"
-      : `${state.players[state.turnPlayer].label} 揀卡`;
-    ctx.fillText(msg, w / 2, h - 172);
-  } else if (state.phase === "gameover") {
-    ctx.fillText("比賽完結，點畫面重新返 menu", w / 2, h - 172);
-  }
+  const bodySize = h < 96 ? 16 : 20;
+  const lineHeight = h < 96 ? 22 : 28;
+  ctx.font = `800 ${bodySize}px system-ui, sans-serif`;
+  wrapText(state.message || "", x + 16, y + 58, w - 32, lineHeight, Math.floor((h - 56) / lineHeight));
 }
 
-function drawCard(x, y, width, height, card, actionable, player, index) {
-  ctx.save();
-  ctx.shadowColor = actionable ? "rgba(255,209,102,0.42)" : "rgba(0,0,0,0.34)";
-  ctx.shadowBlur = actionable ? 18 : 8;
-  ctx.fillStyle = card ? "#111827" : "#202838";
-  ctx.strokeStyle = actionable ? "#ffd166" : "rgba(255,255,255,0.24)";
-  ctx.lineWidth = actionable ? 3 : 1;
-  roundRect(x, y, width, height, 8);
-  ctx.fill();
-  ctx.stroke();
-  ctx.shadowBlur = 0;
+function drawBottomHint(w, h) {
+  let text = "繼續：推進對話";
+  if (state.mode === "cross") text = "審問中：上一句 / 下一句 / 追問 / 出示證物";
+  if (state.mode === "feedback") text = "按「繼續」返回審問或進入下一段證言";
+  if (state.mode === "verdict" || state.mode === "gameover") text = "按「繼續」返回標題";
+  ctx.fillStyle = "rgba(255,255,255,0.72)";
+  ctx.font = "800 12px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(text, w / 2, h - 64);
+  ctx.textAlign = "left";
+}
 
-  if (!card) {
-    ctx.fillStyle = "#4cc9f0";
-    ctx.font = "900 18px system-ui, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("ERC", x + width / 2, y + height / 2);
+function drawBench(x, y, color, label) {
+  ctx.fillStyle = "#3b2418";
+  roundedRect(x - 96, y + 35, 192, 64, 8, true);
+  ctx.fillStyle = color;
+  roundedRect(x - 82, y + 28, 164, 20, 6, true);
+  ctx.fillStyle = "rgba(255,255,255,0.78)";
+  ctx.font = "900 13px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(label, x, y + 44);
+  ctx.textAlign = "left";
+}
+
+function drawLargeSally(x, baseY, scale, pose) {
+  ctx.save();
+  ctx.translate(x, baseY);
+  ctx.scale(scale, scale);
+  drawPortraitShadow(0, -10, 88);
+  ctx.fillStyle = "#21102d";
+  ctx.beginPath();
+  ctx.ellipse(-4, -138, 68, 92, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#1e66d8";
+  ctx.beginPath();
+  ctx.moveTo(-82, 0);
+  ctx.quadraticCurveTo(-62, -92, -24, -112);
+  ctx.lineTo(32, -112);
+  ctx.quadraticCurveTo(72, -88, 86, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#f8fbff";
+  ctx.beginPath();
+  ctx.moveTo(-28, -104);
+  ctx.lineTo(32, -104);
+  ctx.lineTo(16, -14);
+  ctx.lineTo(-16, -14);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#ffd15f";
+  ctx.fillRect(24, -48, 54, 10);
+  if (pose === "objection") {
+    drawArmPointing(32, -76, "#f1c2a0", "#1e66d8");
   } else {
-    const typeColor = { strike: "#ef476f", grapple: "#4cc9f0", risk: "#ffd166", counter: "#06d6a0", taunt: "#f8fbff" }[card.type];
-    ctx.fillStyle = typeColor;
-    ctx.fillRect(x + 8, y + 8, width - 16, 8);
-    ctx.fillStyle = "#f8fbff";
-    ctx.font = "900 12px system-ui, sans-serif";
-    ctx.textAlign = "left";
-    wrapText(card.name, x + 10, y + 30, width - 20, 14, 2);
-    ctx.fillStyle = "#ffd166";
-    ctx.font = "900 20px system-ui, sans-serif";
-    ctx.fillText(String(card.power), x + 10, y + 78);
-    ctx.fillStyle = "#4cc9f0";
-    ctx.fillText(`+${card.hype}`, x + width - 42, y + 78);
-    ctx.fillStyle = "#b8c5d1";
-    ctx.font = "750 10px system-ui, sans-serif";
-    wrapText(card.text, x + 10, y + 96, width - 20, 12, 3);
+    ctx.fillStyle = "#f1c2a0";
+    roundedRect(30, -64, 60, 16, 8, true);
   }
-
-  ctx.restore();
-  state.buttons.push({ x, y, width, height, kind: "card", player, index, actionable });
-}
-
-function drawLog(w, h) {
-  const width = Math.min(520, w - 32);
-  const x = (w - width) / 2;
-  const y = Math.max(206, h - 214);
-  drawPanel(x, y, width, 52, "rgba(8,11,18,0.72)");
-  ctx.fillStyle = "#f8fbff";
-  ctx.font = "850 12px system-ui, sans-serif";
-  ctx.textAlign = "center";
-  wrapText(state.log[0] || "Ready.", x + 14, y + 22, width - 28, 15, 2, "center");
-}
-
-function drawEffects() {
-  for (const fx of state.effects) {
-    const t = 1 - fx.age / fx.life;
-    ctx.globalAlpha = t;
-    ctx.fillStyle = fx.color;
-    ctx.beginPath();
-    ctx.arc(fx.x, fx.y, 4 + t * 12, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-  }
-}
-
-function drawPanel(x, y, width, height, color) {
-  ctx.fillStyle = color;
-  ctx.strokeStyle = "rgba(255,255,255,0.18)";
-  ctx.lineWidth = 1;
-  roundRect(x, y, width, height, 8);
+  drawLargeAnimeFace(0, -150, "#f1c2a0", "#21102d", "determined");
+  ctx.fillStyle = "#21102d";
+  ctx.beginPath();
+  ctx.moveTo(-58, -174);
+  ctx.bezierCurveTo(-42, -222, 35, -224, 58, -172);
+  ctx.bezierCurveTo(38, -188, 14, -184, -10, -172);
+  ctx.bezierCurveTo(-28, -164, -46, -160, -58, -174);
   ctx.fill();
+  drawNameTag(-70, 4, 140, "#1d65d8", "SALLY");
+  ctx.restore();
+}
+
+function drawLargeWitness(x, baseY, scale, mood) {
+  ctx.save();
+  ctx.translate(x, baseY + Math.sin(state.time * 3) * 2);
+  ctx.scale(scale, scale);
+  drawPortraitShadow(0, -8, 86);
+  ctx.fillStyle = "#4b5563";
+  ctx.beginPath();
+  ctx.moveTo(-72, 0);
+  ctx.quadraticCurveTo(-54, -86, -20, -106);
+  ctx.lineTo(22, -106);
+  ctx.quadraticCurveTo(58, -86, 74, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#dbeafe";
+  ctx.beginPath();
+  ctx.moveTo(-24, -98);
+  ctx.lineTo(24, -98);
+  ctx.lineTo(12, -20);
+  ctx.lineTo(-12, -20);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#91d7ff";
+  ctx.fillRect(18, -44, 48, 10);
+  drawLargeAnimeFace(0, -148, "#f1c2a0", "#111827", mood === "worried" ? "nervous" : "plain");
+  ctx.fillStyle = "#111827";
+  roundedRect(-52, -210, 104, 34, 10, true);
+  ctx.fillStyle = "#26374f";
+  ctx.fillRect(-44, -176, 88, 22);
+  if (mood === "worried") {
+    ctx.fillStyle = "#91d7ff";
+    ctx.beginPath();
+    ctx.ellipse(42, -138, 5, 11, -0.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  drawNameTag(-58, 4, 116, "#475569", "羅曼");
+  ctx.restore();
+}
+
+function drawLargeProsecutor(x, baseY, scale, mood) {
+  ctx.save();
+  ctx.translate(x, baseY);
+  ctx.scale(scale, scale);
+  drawPortraitShadow(0, -8, 88);
+  ctx.fillStyle = "#b91c3a";
+  ctx.beginPath();
+  ctx.moveTo(-82, 0);
+  ctx.quadraticCurveTo(-62, -92, -24, -112);
+  ctx.lineTo(30, -112);
+  ctx.quadraticCurveTo(66, -90, 84, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#111827";
+  ctx.beginPath();
+  ctx.moveTo(-24, -102);
+  ctx.lineTo(28, -102);
+  ctx.lineTo(12, -18);
+  ctx.lineTo(-12, -18);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#f8fbff";
+  ctx.fillRect(30, -54, 62, 10);
+  drawLargeAnimeFace(0, -150, "#efc2a3", "#eef2f7", mood);
+  ctx.fillStyle = "#eef2f7";
+  ctx.beginPath();
+  ctx.moveTo(-58, -184);
+  ctx.bezierCurveTo(-24, -230, 38, -218, 64, -174);
+  ctx.lineTo(42, -168);
+  ctx.bezierCurveTo(24, -188, -12, -190, -58, -184);
+  ctx.fill();
+  drawNameTag(-88, 4, 176, "#b91c3a", "檢察官 葉城");
+  ctx.restore();
+}
+
+function drawLargeJudge(x, baseY, scale, mood) {
+  ctx.save();
+  ctx.translate(x, baseY);
+  ctx.scale(scale, scale);
+  drawPortraitShadow(0, -8, 92);
+  ctx.fillStyle = "#1f1720";
+  ctx.beginPath();
+  ctx.moveTo(-92, 0);
+  ctx.quadraticCurveTo(-70, -84, -26, -112);
+  ctx.lineTo(26, -112);
+  ctx.quadraticCurveTo(70, -84, 92, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#f8efe4";
+  ctx.fillRect(-26, -100, 52, 42);
+  drawLargeAnimeFace(0, -150, "#f0c9a6", "#f3efe0", mood === "verdict" ? "kind" : "stern");
+  ctx.fillStyle = "#f3efe0";
+  roundedRect(-68, -210, 136, 32, 6, true);
+  ctx.fillStyle = "#e2dac7";
+  ctx.fillRect(-58, -178, 116, 18);
+  drawNameTag(-64, 4, 128, "#5b3b24", "法官");
+  ctx.restore();
+}
+
+function drawLargeAnimeFace(x, y, skin, hair, expression) {
+  ctx.fillStyle = skin;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 42, 52, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(120,65,40,0.12)";
+  ctx.beginPath();
+  ctx.ellipse(x + 13, y + 10, 16, 26, -0.15, 0, Math.PI * 2);
+  ctx.fill();
+  drawLargeEyes(x, y - 12, expression);
+  drawLargeMouth(x, y + 16, expression);
+  if (expression === "stern" || expression === "smirk") drawLargeBrows(x, y - 24, expression === "stern");
+}
+
+function drawLargeEyes(x, y, expression) {
+  const eyeColor = expression === "nervous" ? "#64748b" : "#14213d";
+  const leftY = expression === "stern" ? y + 2 : y;
+  const rightY = expression === "smirk" ? y + 3 : y;
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.ellipse(x - 17, leftY, 12, 8, -0.08, 0, Math.PI * 2);
+  ctx.ellipse(x + 17, rightY, 12, 8, 0.08, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = eyeColor;
+  ctx.beginPath();
+  ctx.arc(x - 17, leftY + 1, 5, 0, Math.PI * 2);
+  ctx.arc(x + 17, rightY + 1, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#111827";
+  ctx.beginPath();
+  ctx.arc(x - 17, leftY + 1, 2.2, 0, Math.PI * 2);
+  ctx.arc(x + 17, rightY + 1, 2.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#111827";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x - 31, leftY - 2);
+  ctx.quadraticCurveTo(x - 17, leftY - 12, x - 4, leftY - 2);
+  ctx.moveTo(x + 4, rightY - 2);
+  ctx.quadraticCurveTo(x + 17, rightY - 12, x + 31, rightY - 2);
   ctx.stroke();
 }
 
-function roundRect(x, y, width, height, radius) {
-  const r = Math.min(radius, width / 2, height / 2);
+function drawLargeBrows(x, y, stern) {
+  ctx.strokeStyle = "#312019";
+  ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.arcTo(x + width, y, x + width, y + height, r);
-  ctx.arcTo(x + width, y + height, x, y + height, r);
-  ctx.arcTo(x, y + height, x, y, r);
-  ctx.arcTo(x, y, x + width, y, r);
-  ctx.closePath();
+  ctx.moveTo(x - 32, y - (stern ? 2 : -2));
+  ctx.lineTo(x - 6, y + (stern ? 8 : 0));
+  ctx.moveTo(x + 6, y + (stern ? 8 : 0));
+  ctx.lineTo(x + 32, y - (stern ? 2 : -2));
+  ctx.stroke();
 }
 
-function wrapText(text, x, y, maxWidth, lineHeight, maxLines, align = "left") {
-  const words = String(text).split(/\s+/);
+function drawLargeMouth(x, y, expression) {
+  ctx.strokeStyle = "#7f1d1d";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  if (expression === "nervous") {
+    ctx.moveTo(x - 16, y + 10);
+    ctx.quadraticCurveTo(x, y + 5, x + 16, y + 10);
+  } else if (expression === "smirk") {
+    ctx.moveTo(x - 16, y + 8);
+    ctx.quadraticCurveTo(x + 3, y + 16, x + 22, y + 4);
+  } else if (expression === "stern") {
+    ctx.moveTo(x - 16, y + 11);
+    ctx.lineTo(x + 16, y + 11);
+  } else {
+    ctx.moveTo(x - 16, y + 8);
+    ctx.quadraticCurveTo(x, y + 16, x + 16, y + 8);
+  }
+  ctx.stroke();
+}
+
+function drawJudge(x, y, scale) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  drawPortraitShadow(0, 96, 78);
+  ctx.fillStyle = "#5b3b24";
+  roundedRect(-92, 60, 184, 68, 8, true);
+  drawRobe(0, 40, "#1f1720", "#f8efe4", 70);
+  drawFace(0, -10, "#f0c9a6", "stern");
+  ctx.fillStyle = "#f3efe0";
+  roundedRect(-50, -56, 100, 24, 4, true);
+  ctx.fillStyle = "#d8d0c0";
+  ctx.fillRect(-44, -32, 88, 12);
+  drawBrows(0, -18, true);
+  drawNameTag(-62, 120, 124, "#5b3b24", "法官");
+  ctx.restore();
+}
+
+function drawDefense(x, y, scale) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  drawPortraitShadow(0, 104, 72);
+  drawHairBack(0, -10, "#20102b", 58, 76);
+  drawSuit(0, 42, "#1d65d8", "#f8fbff", "#ffd15f");
+  drawArmPointing(28, 54, "#f1c2a0", "#1d65d8");
+  drawFace(0, -18, "#f1c2a0", "focused");
+  drawSallyHairFront(0, -20);
+  drawNameTag(-64, 120, 128, "#1d65d8", "SALLY");
+  ctx.restore();
+}
+
+function drawProsecutor(x, y, scale) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  drawPortraitShadow(0, 104, 72);
+  drawHairBack(0, -18, "#e8edf7", 48, 38);
+  drawSuit(0, 42, "#b91c3a", "#111827", "#eceff6");
+  drawFace(0, -18, "#efc2a3", "smirk");
+  ctx.fillStyle = "#eef2f7";
+  roundedRect(-36, -58, 72, 16, 4, true);
+  drawBrows(0, -26, true);
+  drawNameTag(-76, 120, 152, "#b91c3a", "檢察官 葉城");
+  ctx.restore();
+}
+
+function drawWitness(x, y, scale) {
+  ctx.save();
+  ctx.translate(x, y + Math.sin(state.time * 3) * 2);
+  ctx.scale(scale, scale);
+  ctx.fillStyle = "#5b3b24";
+  roundedRect(-86, 64, 172, 58, 8, true);
+  drawPortraitShadow(0, 98, 70);
+  drawSuit(0, 40, "#475569", "#dbeafe", "#91d7ff");
+  drawFace(0, -20, "#f1c2a0", "nervous");
+  ctx.fillStyle = "#111827";
+  roundedRect(-38, -58, 76, 26, 8, true);
+  ctx.fillStyle = "#23334a";
+  ctx.fillRect(-32, -36, 64, 16);
+  drawNameTag(-54, 120, 108, "#475569", "羅曼");
+  ctx.restore();
+}
+
+function drawPortraitShadow(x, y, width) {
+  ctx.fillStyle = "rgba(0,0,0,0.28)";
+  ctx.beginPath();
+  ctx.ellipse(x, y, width, 15, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawHairBack(x, y, color, width, height) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 8, width, height, 0, Math.PI * 0.04, Math.PI * 1.96);
+  ctx.fill();
+}
+
+function drawSallyHairFront(x, y) {
+  ctx.fillStyle = "#2a1435";
+  ctx.beginPath();
+  ctx.moveTo(x - 42, y - 25);
+  ctx.bezierCurveTo(x - 18, y - 66, x + 26, y - 64, x + 43, y - 22);
+  ctx.bezierCurveTo(x + 22, y - 38, x + 4, y - 28, x - 12, y - 22);
+  ctx.bezierCurveTo(x - 22, y - 18, x - 36, y - 14, x - 42, y - 25);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,0.18)";
+  ctx.beginPath();
+  ctx.ellipse(x + 12, y - 42, 11, 4, -0.4, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawFace(x, y, skin, expression) {
+  ctx.fillStyle = skin;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 31, 38, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(120,65,40,0.16)";
+  ctx.beginPath();
+  ctx.ellipse(x + 9, y + 8, 14, 20, -0.2, 0, Math.PI * 2);
+  ctx.fill();
+  drawEyes(x, y - 7, expression);
+  drawNoseMouth(x, y + 4, expression);
+}
+
+function drawEyes(x, y, expression) {
+  const rightTilt = expression === "smirk" ? -2 : expression === "nervous" ? 2 : 0;
+  ctx.strokeStyle = "#111827";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x - 20, y);
+  ctx.quadraticCurveTo(x - 12, y - 5, x - 4, y + (expression === "nervous" ? 1 : 0));
+  ctx.moveTo(x + 4, y + rightTilt);
+  ctx.quadraticCurveTo(x + 13, y - 5 + rightTilt, x + 22, y - 1);
+  ctx.stroke();
+  ctx.fillStyle = "#111827";
+  ctx.beginPath();
+  ctx.arc(x - 12, y + 2, 3, 0, Math.PI * 2);
+  ctx.arc(x + 14, y + rightTilt + 1, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,0.75)";
+  ctx.beginPath();
+  ctx.arc(x - 13, y + 1, 1, 0, Math.PI * 2);
+  ctx.arc(x + 13, y + rightTilt, 1, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawBrows(x, y, stern) {
+  ctx.strokeStyle = "#33201a";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(x - 24, y - (stern ? 2 : 0));
+  ctx.lineTo(x - 6, y + (stern ? 5 : 0));
+  ctx.moveTo(x + 6, y + (stern ? 5 : 0));
+  ctx.lineTo(x + 24, y - (stern ? 2 : 0));
+  ctx.stroke();
+}
+
+function drawNoseMouth(x, y, expression) {
+  ctx.strokeStyle = "rgba(80,45,34,0.42)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x + 2, y - 8);
+  ctx.quadraticCurveTo(x + 8, y, x + 1, y + 5);
+  ctx.stroke();
+  ctx.strokeStyle = "#7f1d1d";
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  if (expression === "smirk") {
+    ctx.moveTo(x - 10, y + 18);
+    ctx.quadraticCurveTo(x + 4, y + 22, x + 18, y + 14);
+  } else if (expression === "nervous") {
+    ctx.moveTo(x - 11, y + 17);
+    ctx.quadraticCurveTo(x, y + 12, x + 12, y + 17);
+  } else {
+    ctx.moveTo(x - 13, y + 18);
+    ctx.quadraticCurveTo(x, y + 23, x + 13, y + 18);
+  }
+  ctx.stroke();
+}
+
+function drawSuit(x, y, jacket, shirt, accent) {
+  ctx.fillStyle = jacket;
+  ctx.beginPath();
+  ctx.moveTo(x - 54, y + 76);
+  ctx.quadraticCurveTo(x - 45, y + 6, x - 22, y - 8);
+  ctx.lineTo(x + 22, y - 8);
+  ctx.quadraticCurveTo(x + 45, y + 6, x + 54, y + 76);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = shirt;
+  ctx.beginPath();
+  ctx.moveTo(x - 18, y - 4);
+  ctx.lineTo(x + 18, y - 4);
+  ctx.lineTo(x + 10, y + 68);
+  ctx.lineTo(x - 10, y + 68);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = accent;
+  ctx.fillRect(x + 18, y + 30, 52, 10);
+  ctx.strokeStyle = "rgba(255,255,255,0.2)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x - 22, y - 4);
+  ctx.lineTo(x - 4, y + 28);
+  ctx.lineTo(x - 16, y + 76);
+  ctx.moveTo(x + 22, y - 4);
+  ctx.lineTo(x + 4, y + 28);
+  ctx.lineTo(x + 16, y + 76);
+  ctx.stroke();
+}
+
+function drawRobe(x, y, robe, shirt, width) {
+  ctx.fillStyle = robe;
+  ctx.beginPath();
+  ctx.moveTo(x - width / 2, y + 78);
+  ctx.quadraticCurveTo(x - 34, y + 4, x - 16, y - 10);
+  ctx.lineTo(x + 16, y - 10);
+  ctx.quadraticCurveTo(x + 34, y + 4, x + width / 2, y + 78);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = shirt;
+  ctx.fillRect(x - 18, y - 4, 36, 30);
+}
+
+function drawArmPointing(x, y, skin, sleeve) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(-0.08);
+  ctx.fillStyle = sleeve;
+  roundedRect(-6, -8, 54, 18, 8, true);
+  ctx.fillStyle = skin;
+  roundedRect(40, -9, 42, 16, 8, true);
+  ctx.fillStyle = "#f8d3ba";
+  ctx.beginPath();
+  ctx.moveTo(78, -5);
+  ctx.lineTo(104, -1);
+  ctx.lineTo(78, 5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawNameTag(x, y, width, color, name) {
+  ctx.fillStyle = "rgba(0,0,0,0.42)";
+  roundedRect(x + 8, y + 6, width, 24, 6, true);
+  ctx.fillStyle = color;
+  roundedRect(x, y, width, 24, 6, true);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "900 13px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(name, x + width / 2, y + 16);
+  ctx.textAlign = "left";
+}
+
+function drawCutIn(w, topH, word) {
+  ctx.save();
+  ctx.globalAlpha = clamp(state.flash + 0.25, 0, 1);
+  ctx.fillStyle = word === "休庭" ? "#111827" : word === "無罪!" ? "#55d6a8" : "#ff4d6d";
+  ctx.beginPath();
+  ctx.moveTo(0, topH * 0.28);
+  ctx.lineTo(w, topH * 0.06);
+  ctx.lineTo(w, topH * 0.54);
+  ctx.lineTo(0, topH * 0.78);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  ctx.strokeStyle = "#111827";
+  ctx.lineWidth = 8;
+  ctx.font = `950 ${Math.min(88, w * 0.12)}px system-ui, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.strokeText(word, w / 2, topH * 0.42);
+  ctx.fillText(word, w / 2, topH * 0.42);
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  ctx.restore();
+}
+
+function drawFlash(w, h) {
+  if (state.flash <= 0) return;
+  ctx.save();
+  ctx.globalAlpha = state.flash * 0.18;
+  ctx.fillStyle = state.feedbackKind === "wrong" ? "#ff4d6d" : "#ffffff";
+  ctx.fillRect(0, 0, w, h);
+  ctx.restore();
+}
+
+function roundedRect(x, y, w, h, r, fill) {
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+  if (fill) ctx.fill();
+  else ctx.stroke();
+}
+
+function wrapText(text, x, y, maxWidth, lineHeight, maxLines) {
+  const chars = [...String(text)];
   const lines = [];
   let line = "";
-  for (const word of words) {
-    const test = line ? `${line} ${word}` : word;
+  for (const ch of chars) {
+    const test = line + ch;
     if (ctx.measureText(test).width > maxWidth && line) {
       lines.push(line);
-      line = word;
+      line = ch;
     } else {
       line = test;
     }
   }
   if (line) lines.push(line);
-  ctx.textAlign = align;
-  const drawX = align === "center" ? x + maxWidth / 2 : x;
-  lines.slice(0, maxLines).forEach((lineText, index) => ctx.fillText(lineText, drawX, y + index * lineHeight));
+  lines.slice(0, maxLines).forEach((lineText, i) => ctx.fillText(lineText, x, y + i * lineHeight));
 }
 
-function handlePointer(event) {
-  const rect = canvas.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-  if (state.phase === "gameover") {
-    resetToMenu();
-    return;
-  }
-  const hit = state.buttons.find((button) => x >= button.x && x <= button.x + button.width && y >= button.y && y <= button.y + button.height);
-  if (hit?.kind === "card") selectCard(hit.player, hit.index);
+function renderGameToText() {
+  const chapter = currentChapter();
+  return JSON.stringify({
+    coordinateSystem: "canvas origin top-left, x right, y down",
+    mode: state.mode,
+    chapterIndex: state.chapter,
+    chapterTitle: chapter?.title || null,
+    statementIndex: state.statement,
+    statementText: chapter?.statements[state.statement]?.text || null,
+    speaker: state.speaker,
+    message: state.message,
+    trust: state.trust,
+    solved: state.solved,
+    evidence: evidence.map((item) => item.id),
+    evidenceOpen: state.evidenceOpen,
+    expectedEvidence: chapter?.solution.evidence || null,
+    expectedStatement: chapter?.solution.statement ?? null,
+  });
 }
 
-function handleMenu(mode) {
-  if (mode === "offline") startOffline();
-  if (mode === "online-host") startOnline(true);
-  if (mode === "online-join") {
-    roomEntry.classList.remove("hidden");
-    if (roomInput.value.trim()) startOnline(false);
-    else showToast("輸入房號，再撳一次 Online 入房。");
+function testSolveCurrent() {
+  const chapter = currentChapter();
+  state.mode = "cross";
+  state.statement = chapter.solution.statement;
+  presentEvidence(chapter.solution.evidence);
+  return JSON.parse(renderGameToText());
+}
+
+function testFinishCase() {
+  if (state.mode === "feedback" && state.feedbackReturn === "nextChapter") {
+    state.chapter += 1;
   }
+  state.mode = "cross";
+  while (state.chapter < chapters.length) {
+    const chapter = currentChapter();
+    state.statement = chapter.solution.statement;
+    presentEvidence(chapter.solution.evidence);
+    if (state.feedbackReturn === "nextChapter") {
+      state.chapter += 1;
+      if (state.chapter >= chapters.length) break;
+      state.mode = "cross";
+    }
+  }
+  enterVerdict();
+  return JSON.parse(renderGameToText());
 }
 
 function loop(now) {
-  const dt = Math.min((now - lastTime) / 1000, 0.05);
-  lastTime = now;
+  const dt = Math.min((now - (loop.last || now)) / 1000, 0.05);
+  loop.last = now;
   update(dt);
   draw();
   requestAnimationFrame(loop);
 }
 
+startBtn.addEventListener("click", startGame);
+closeEvidence.addEventListener("click", closeEvidencePanel);
+window.addEventListener("resize", resize);
+document.addEventListener("fullscreenchange", resize);
+
+document.querySelectorAll(".ctrl-btn").forEach((button) => {
+  button.addEventListener("click", () => handleAction(button.dataset.action));
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowRight" || event.key.toLowerCase() === "d") nextStatement(1);
+  if (event.key === "ArrowLeft" || event.key.toLowerCase() === "a") nextStatement(-1);
+  if (event.key.toLowerCase() === "p") pressStatement();
+  if (event.key.toLowerCase() === "e") openEvidence();
+  if (event.key === "Enter" || event.key === " ") {
+    advance();
+    event.preventDefault();
+  }
+  if (event.key.toLowerCase() === "m") toggleSound();
+  if (event.key.toLowerCase() === "f") toggleFullscreen();
+});
+
+window.render_game_to_text = renderGameToText;
 window.advanceTime = (ms) => {
   const steps = Math.max(1, Math.round(ms / (1000 / 60)));
-  for (let i = 0; i < steps; i += 1) {
-    virtualNow += 1000 / 60;
-    update(1 / 60);
-  }
+  for (let i = 0; i < steps; i += 1) update(1 / 60);
   draw();
 };
+window.__court_test_solve_current = testSolveCurrent;
+window.__court_test_finish_case = testFinishCase;
 
-window.render_game_to_text = () => JSON.stringify({
-  note: "Canvas coordinates origin top-left, x right, y down. Online requires two browser clients in same room.",
-  view: state.view,
-  mode: state.mode,
-  phase: state.phase,
-  room: state.room,
-  seat: state.seat,
-  peers: state.peers,
-  round: state.round,
-  turnPlayer: state.turnPlayer,
-  players: state.players.map((p) => ({ name: p.name, hp: p.hp, hype: p.hype, falls: p.score, pin: p.pin })),
-  handCounts: state.hands.map((hand) => hand.length),
-  localPlayableCards: state.buttons.filter((b) => b.kind === "card" && b.actionable).map((b) => ({ player: b.player, index: b.index, x: Math.round(b.x), y: Math.round(b.y), w: Math.round(b.width), h: Math.round(b.height) })),
-  log: state.log.slice(0, 3),
-});
-
-document.querySelectorAll(".menu-btn").forEach((button) => {
-  button.addEventListener("click", () => handleMenu(button.dataset.mode));
-});
-canvas.addEventListener("pointerdown", handlePointer);
-audioBtn.addEventListener("click", () => {
-  ensureAudio();
-  musicOn = !musicOn;
-  audioBtn.textContent = musicOn ? "靜音" : "音樂";
-  sfx("tap");
-});
-window.addEventListener("resize", resize);
-window.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") resetToMenu();
-  if (event.key.toLowerCase() === "f") {
-    if (document.fullscreenElement) document.exitFullscreen();
-    else document.documentElement.requestFullscreen?.();
-  }
-});
-
-roomEntry.classList.add("hidden");
 resize();
-syncStatus();
 requestAnimationFrame(loop);
