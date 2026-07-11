@@ -3,39 +3,50 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Elite Ring Clash</title>
+    <title>星光法庭：雨夜證言</title>
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main id="game-shell" aria-label="Elite Ring Clash 摔角卡牌遊戲">
-      <canvas id="game"></canvas>
+    <main id="game-shell" aria-label="星光法庭：雨夜證言">
+      <canvas id="game" width="960" height="540"></canvas>
 
-      <section id="topbar">
-        <div id="brand">Elite Ring Clash</div>
-        <div id="status-pill">Menu</div>
-        <button id="audio-btn" type="button" aria-label="音樂開關">音樂</button>
-      </section>
-
-      <section id="menu" class="panel">
-        <div class="kicker">AEW-style fan card battler</div>
-        <h1>Elite Ring Clash</h1>
+      <section id="menu-panel" class="panel">
+        <p class="kicker">NDS 風格 · 法庭推理 · 出示證物</p>
+        <h1>星光法庭：雨夜證言</h1>
         <p>
-          原創角色、原創音樂同特效，玩法受電視摔角節奏啟發。出招、反擊、搶觀眾反應，
-          三回合 pinfall 決勝。
+          你係新人女辯護律師「SALLY」。喺雨夜謀殺案審判入面，逐句審問證人，
+          追問漏洞，再用證物打破矛盾，替被告翻案。
         </p>
-        <div class="menu-grid">
-          <button class="menu-btn" type="button" data-mode="offline">Offline 兩個人</button>
-          <button class="menu-btn" type="button" data-mode="online-host">Online 開房</button>
-          <button class="menu-btn" type="button" data-mode="online-join">Online 入房</button>
-        </div>
-        <label id="room-entry">
-          Room code
-          <input id="room-input" maxlength="6" autocomplete="off" placeholder="例如 A7KQ" />
-        </label>
+        <button id="start-btn" class="primary-btn" type="button">開庭</button>
+        <p class="small">玩法似掌機法庭推理：讀證言、追問、出示證物。iPhone 橫向最舒服。</p>
       </section>
 
-      <section id="toast" class="hidden" aria-live="polite"></section>
+      <section id="hud" class="hidden" aria-live="polite">
+        <div id="objective">第一日審判</div>
+        <div id="status">信任 5/5 · 證物 4 · 進度 0%</div>
+      </section>
+
+      <section id="evidence-panel" class="panel hidden" aria-live="polite">
+        <div class="panel-row">
+          <div>
+            <p class="kicker">證物袋</p>
+            <h2>選擇要出示嘅證物</h2>
+          </div>
+          <button id="close-evidence" class="mini-btn" type="button">關閉</button>
+        </div>
+        <div id="evidence-list"></div>
+      </section>
+
+      <nav id="touch-controls" class="hidden" aria-label="法庭控制">
+        <button class="ctrl-btn" type="button" data-action="prev">上一句</button>
+        <button class="ctrl-btn" type="button" data-action="next">下一句</button>
+        <button class="ctrl-btn action" type="button" data-action="press">追問</button>
+        <button class="ctrl-btn action" type="button" data-action="present">出示</button>
+        <button class="ctrl-btn" type="button" data-action="advance">繼續</button>
+        <button class="ctrl-btn" type="button" data-action="sound">聲</button>
+        <button class="ctrl-btn" type="button" data-action="full">全屏</button>
+      </nav>
     </main>
 
     <script type="module" src="game.js"></script>
