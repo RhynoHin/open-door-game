@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7f3ed" />
+    <title>月伴｜陪月及產後照護</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="enhancements.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <button class="brand" type="button" data-view-target="home" aria-label="返回首頁">
+          <span class="brand-mark" aria-hidden="true">月</span>
+          <span><strong>月伴</strong><small>陪你坐好每一日</small></span>
+        </button>
+        <div class="top-actions">
+          <button class="round-btn" id="help-btn" type="button" aria-label="重要支援">?</button>
+          <button class="avatar" type="button" data-view-target="profile" aria-label="個人設定">嘉</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="view active" id="view-home" data-view="home">
+          <div class="hero-card">
+            <div>
+              <p class="eyebrow">早晨，嘉敏</p>
+              <h1>今日都已經<br /><em>做得好好。</em></h1>
+              <p class="hero-copy">樂悠出生第 12 日 · 下一次餵奶約 10:30</p>
+            </div>
+            <div class="baby-orbit" aria-label="寶寶出生第12日">
+              <span class="orbit-dot dot-one"></span><span class="orbit-dot dot-two"></span>
+              <div class="baby-face"><span>•ᴗ•</span></div>
+              <div class="day-pill"><strong>12</strong><span>日</span></div>
+            </div>
+          </div>
+
+          <div class="home-grid">
+            <section class="card today-card">
+              <div class="section-heading">
+                <div><p class="eyebrow">今日照護</p><h2>一家人都睇得明</h2></div>
+                <button class="text-btn" type="button" data-view-target="records">睇全部</button>
+              </div>
+              <div class="stats-row">
+                <button class="stat" type="button" data-log="feed"><span class="stat-icon peach">奶</span><strong id="feed-count">5</strong><small>次餵奶</small></button>
+                <button class="stat" type="button" data-log="diaper"><span class="stat-icon sage">片</span><strong id="diaper-count">4</strong><small>次換片</small></button>
+                <button class="stat" type="button" data-log="sleep"><span class="stat-icon blue">眠</span><strong id="sleep-count">3.5</strong><small>小時睡眠</small></button>
+                <button class="stat" type="button" data-log="mood"><span class="stat-icon rose">心</span><strong>平穩</strong><small>媽媽心情</small></button>
+              </div>
+              <div class="timeline" id="mini-timeline">
+                <div class="timeline-item"><time>09:18</time><span class="timeline-dot peach"></span><div><strong>母乳餵哺</strong><small>右邊 · 18 分鐘</small></div><span class="by">陳姨</span></div>
+                <div class="timeline-item"><time>08:45</time><span class="timeline-dot sage"></span><div><strong>換尿片</strong><small>小便 · 狀態正常</small></div><span class="by">爸爸</span></div>
+                <div class="timeline-item"><time>07:30</time><span class="timeline-dot blue"></span><div><strong>媽媽休息</strong><small>睡了 1 小時 20 分</small></div><span class="by">自己</span></div>
+              </div>
+              <button class="primary-btn wide" type="button" id="quick-add">＋ 快速記錄</button>
+            </section>
+
+            <aside class="side-stack">
+              <section class="card helper-card">
+                <div class="section-heading compact"><div><p class="eyebrow">今日陪月</p><h2>陳姨 · 08:00–16:00</h2></div><span class="status-pill">已到達</span></div>
+                <div class="helper-summary">
+                  <div class="helper-photo photo-chan">陳</div>
+                  <div><strong>陳美儀姨姨</strong><p>已完成 3 / 5 項工作</p></div>
+                  <button class="icon-call" type="button" data-toast="示範：致電功能會連接已核實電話">☎</button>
+                </div>
+                <div class="task-progress"><span style="width:60%"></span></div>
+                <ul class="task-list">
+                  <li class="done"><span></span>準備媽媽午餐</li>
+                  <li class="done"><span></span>清潔奶樽及泵奶配件</li>
+                  <li><span></span>寶寶沖涼 · 14:00</li>
+                </ul>
+              </section>
+
+              <section class="nudge-card">
+                <div class="nudge-icon">☼</div>
+                <div><p class="eyebrow">俾自己一個小休</p><h3>飲杯暖水，抖 10 分鐘</h3><p>照顧媽媽，都係照顧寶寶。</p></div>
+              </section>
+            </aside>
+          </div>
+
+          <section class="card knowledge-strip">
+            <div><p class="eyebrow">今日小知識 · 來自衞生署</p><h2>點知寶寶食得夠唔夠？</h2><p>可以留意濕尿片、便便同體重變化；每個寶寶節奏都唔同。</p></div>
+            <button class="secondary-btn" type="button" data-article="feeding">了解更多</button>
+          </section>
+        </section>
+
+        <section class="view" id="view-match" data-view="match">
+          <div class="page-intro match-intro">
+            <div><p class="eyebrow">陪月配對</p><h1>搵一位你真正<br /><em>放心嘅姨姨。</em></h1></div>
+            <p>所有「已核實」資料均要經平台檢查證書及身份。示範名單及價錢只供原型展示。</p>
+          </div>
+          <div class="search-panel card">
+            <label class="search-box"><span>⌕</span><input id="helper-search" type="search" placeholder="搜尋姓名、地區或專長" /></label>
+            <div class="filter-row" id="filter-row">
+              <button class="chip active" type="button" data-filter="all">全部</button>
+              <button class="chip" type="button" data-filter="available">檔期合適</button>
+              <button class="chip" type="button" data-filter="night">通宵</button>
+              <button class="chip" type="button" data-filter="twins">孖胎經驗</button>
+              <button class="chip" type="button" data-filter="lactation">母乳支援</button>
+            </div>
+          </div>
+          <div class="results-head"><p><strong id="result-count">3</strong> 位合適陪月</p><button class="text-btn" type="button" data-toast="示範：可按檔期、距離、評價及價錢排序">最合適優先⌄</button></div>
+          <div class="helper-grid" id="helper-grid">
+            <article class="caregiver-card" data-tags="available lactation" data-name="陳美儀 港島 母乳">
+              <div class="caregiver-top"><div class="helper-photo large photo-chan">陳</div><div class="availability">9月有檔期</div></div>
+              <div class="caregiver-body"><div class="verified">✓ 身份及證書已核實</div><h3>陳美儀姨姨</h3><p class="meta">12 年經驗 · 港島及九龍</p><div class="tags"><span>母乳支援</span><span>產後餐單</span><span>急救證書</span></div><p class="quote">「最緊要媽媽休息夠，我會同屋企人一齊配合。」</p><div class="rating"><strong>4.9</strong><span>★★★★★ · 46 個家庭</span></div></div>
+              <div class="caregiver-foot"><div><small>8小時 / 日起</small><strong>$29,800<small> / 26日</small></strong></div><button class="primary-btn helper-detail" type="button" data-helper="chan">睇詳細</button></div>
+            </article>
+            <article class="caregiver-card" data-tags="available night twins" data-name="梁慧珊 新界 通宵 孖胎">
+              <div class="caregiver-top mint"><div class="helper-photo large photo-leung">梁</div><div class="availability">8月尾有檔期</div></div>
+              <div class="caregiver-body"><div class="verified">✓ 身份及證書已核實</div><h3>梁慧珊姨姨</h3><p class="meta">8 年經驗 · 新界及九龍</p><div class="tags"><span>孖胎經驗</span><span>通宵照護</span><span>嬰兒急救</span></div><p class="quote">「夜晚照顧寶寶，等媽媽可以有一段完整睡眠。」</p><div class="rating"><strong>4.8</strong><span>★★★★★ · 31 個家庭</span></div></div>
+              <div class="caregiver-foot"><div><small>通宵 10 小時起</small><strong>$1,480<small> / 晚</small></strong></div><button class="primary-btn helper-detail" type="button" data-helper="leung">睇詳細</button></div>
+            </article>
+            <article class="caregiver-card" data-tags="lactation twins" data-name="黃秀蘭 九龍 母乳 孖胎">
+              <div class="caregiver-top sand"><div class="helper-photo large photo-wong">黃</div><div class="availability muted">10月有檔期</div></div>
+              <div class="caregiver-body"><div class="verified">✓ 身份及證書已核實</div><h3>黃秀蘭姨姨</h3><p class="meta">15 年經驗 · 全港</p><div class="tags"><span>陪月導師</span><span>母乳支援</span><span>孖胎經驗</span></div><p class="quote">「先了解每個家庭習慣，再一齊訂每日照護計劃。」</p><div class="rating"><strong>5.0</strong><span>★★★★★ · 68 個家庭</span></div></div>
+              <div class="caregiver-foot"><div><small>8小時 / 日起</small><strong>$35,800<small> / 26日</small></strong></div><button class="primary-btn helper-detail" type="button" data-helper="wong">睇詳細</button></div>
+            </article>
+          </div>
+          <div class="empty-state hidden" id="helper-empty"><span>⌕</span><h3>未搵到合適陪月</h3><p>試吓清除篩選，或者擴大服務地區。</p></div>
+        </section>
+
+        <section class="view" id="view-records" data-view="records">
+          <div class="page-intro records-intro"><div><p class="eyebrow">AI 照護記錄</p><h1>講一句，<em>記得晒。</em></h1></div><div><p>陪月、媽媽同屋企人都可以用廣東話記錄，AI 會整理成清楚時間線。</p><button class="voice-inline-btn" id="records-voice" type="button"><span>聲</span>開始語音記錄</button></div></div>
+          <div class="ai-daily-brief">
+            <span class="ai-spark">AI</span><div><p class="eyebrow">今日照護摘要 · 只供整理</p><h3>媽媽休息比昨日多 40 分鐘；寶寶餵哺及排泄記錄完整。</h3><p>下午可繼續留意右邊乳房脹痛及傷口變化。如情況惡化，應聯絡醫護人員。</p></div><button type="button" data-view-target="ai">睇 AI 分析</button>
+          </div>
+          <div class="record-category-tabs" role="tablist" aria-label="記錄分類">
+            <button class="active" type="button" data-record-tab="overview">今日概覽</button><button type="button" data-record-tab="mum">媽媽身體</button><button type="button" data-record-tab="baby">寶寶</button><button type="button" data-record-tab="meals">每天餐品</button>
+          </div>
+          <div class="record-panel active" data-record-panel="overview">
+            <div class="date-switcher"><button type="button">‹</button><strong>今日 · 7月15日</strong><button type="button">›</button></div>
+            <div class="records-grid">
+            <section class="card chart-card">
+              <div class="section-heading"><div><p class="eyebrow">24 小時概覽</p><h2>餵奶及休息節奏</h2></div><span class="status-pill neutral">已同步</span></div>
+              <div class="bar-chart" aria-label="過去24小時照護記錄圖表">
+                <div class="chart-labels"><span>00</span><span>04</span><span>08</span><span>12</span><span>16</span><span>20</span><span>24</span></div>
+                <div class="chart-lane"><strong>餵奶</strong><div><i style="left:3%;width:4%"></i><i style="left:18%;width:5%"></i><i style="left:31%;width:5%"></i><i style="left:45%;width:6%"></i><i style="left:62%;width:5%"></i></div></div>
+                <div class="chart-lane sleep"><strong>寶寶睡眠</strong><div><i style="left:7%;width:11%"></i><i style="left:25%;width:6%"></i><i style="left:37%;width:8%"></i><i style="left:53%;width:9%"></i><i style="left:72%;width:13%"></i></div></div>
+                <div class="chart-lane mum"><strong>媽媽休息</strong><div><i style="left:0%;width:18%"></i><i style="left:31%;width:14%"></i><i style="left:70%;width:10%"></i></div></div>
+              </div>
+              <div class="insight"><span>♡</span><p><strong>一個小提醒</strong>你今日有 3.5 小時休息，比昨日多 40 分鐘。</p></div>
+            </section>
+            <section class="card log-card">
+              <div class="section-heading"><div><p class="eyebrow">詳細時間線</p><h2>今日 12 項記錄</h2></div><button class="primary-btn small-btn" type="button" data-log="feed">＋ 新增</button></div>
+              <div class="full-log" id="full-log">
+                <div><time>09:18</time><span class="log-icon peach">奶</span><p><strong>母乳餵哺</strong><small>右邊 · 18 分鐘 · 陳姨記錄</small></p></div>
+                <div><time>08:45</time><span class="log-icon sage">片</span><p><strong>換尿片</strong><small>小便 · 狀態正常 · 爸爸記錄</small></p></div>
+                <div><time>07:30</time><span class="log-icon blue">眠</span><p><strong>媽媽休息</strong><small>1 小時 20 分鐘 · 自己記錄</small></p></div>
+                <div><time>06:55</time><span class="log-icon peach">奶</span><p><strong>樽餵母乳</strong><small>70 ml · 爸爸記錄</small></p></div>
+                <div><time>06:20</time><span class="log-icon rose">心</span><p><strong>媽媽心情</strong><small>平穩 · 自己記錄</small></p></div>
+              </div>
+            </section>
+            </div>
+          </div>
+          <div class="record-panel" data-record-panel="mum">
+            <div class="panel-title-row"><div><p class="eyebrow">產後第 12 日</p><h2>媽媽身體及情緒</h2></div><button class="secondary-btn" type="button" data-log="mood">＋ 手動記錄</button></div>
+            <div class="health-metric-grid">
+              <article class="health-metric"><span class="metric-icon breast">乳</span><div><small>乳房／脹奶</small><strong>右邊輕微脹痛 · 2/5</strong><p>09:18 餵哺後有舒緩</p></div><b class="trend-good">較早上好</b></article>
+              <article class="health-metric"><span class="metric-icon wound">傷</span><div><small>會陰／剖腹傷口</small><strong>痛楚 3/10 · 乾爽</strong><p>未見紅、腫、熱或滲液</p></div><b class="trend-good">穩定</b></article>
+              <article class="health-metric"><span class="metric-icon lochia">露</span><div><small>惡露</small><strong>少量 · 淡紅色</strong><p>今日已換 3 次衞生巾</p></div><b>已記錄</b></article>
+              <article class="health-metric"><span class="metric-icon mood">心</span><div><small>情緒及精神</small><strong>平穩 · 精神 6/10</strong><p>曾有短暫焦慮，休息後改善</p></div><b class="trend-good">有支援</b></article>
+              <article class="health-metric"><span class="metric-icon food">食</span><div><small>進食及飲水</small><strong>2 / 3 餐 · 水 1.2L</strong><p>胃口一般，無噁心</p></div><b>差 1 餐</b></article>
+              <article class="health-metric"><span class="metric-icon rest">眠</span><div><small>休息</small><strong>合共 3.5 小時</strong><p>最長連續睡眠 1 小時 20 分</p></div><b class="trend-good">+40 分</b></article>
+            </div>
+            <div class="safety-note"><span>!</span><p><strong>AI 唔會判斷傷口或惡露係咪正常。</strong>若大量出血、傷口紅腫發熱／滲液、發燒或情況急劇轉差，請立即求醫。</p></div>
+          </div>
+          <div class="record-panel" data-record-panel="baby">
+            <div class="panel-title-row"><div><p class="eyebrow">樂悠 · 出生第 12 日</p><h2>進食、排泄及睡眠</h2></div><button class="secondary-btn" type="button" data-log="feed">＋ 手動記錄</button></div>
+            <div class="baby-summary-grid"><article><span>奶</span><strong>7 次</strong><small>母乳 6 · 樽餵 1</small></article><article><span>量</span><strong>70 ml</strong><small>今日樽餵總量</small></article><article><span>濕</span><strong>6 塊</strong><small>濕尿片</small></article><article><span>便</span><strong>3 次</strong><small>黃色軟便</small></article><article><span>眠</span><strong>13.5 h</strong><small>24 小時睡眠</small></article></div>
+            <section class="card baby-log-card"><div class="section-heading"><div><p class="eyebrow">AI 交更摘要</p><h2>最近 6 小時</h2></div><span class="status-pill neutral">資料完整</span></div><div class="baby-event"><time>09:18</time><span class="peach">奶</span><p><strong>右邊母乳 18 分鐘</strong><small>有吞嚥聲，餵後平靜</small></p></div><div class="baby-event"><time>08:45</time><span class="sage">片</span><p><strong>小便尿片</strong><small>尿液淡黃色</small></p></div><div class="baby-event"><time>06:55</time><span class="peach">樽</span><p><strong>母乳 70 ml</strong><small>約 15 分鐘完成</small></p></div></section>
+            <p class="evidence-copy">尿片同便便只係餵哺狀況嘅其中一部分；如擔心奶量、體重、黃疸或寶寶精神狀態，應聯絡母嬰健康院或醫生。</p>
+          </div>
+          <div class="record-panel" data-record-panel="meals">
+            <div class="panel-title-row"><div><p class="eyebrow">第 2 週 · 溫和調理</p><h2>今日餐品及湯水</h2></div><button class="secondary-btn" type="button" data-view-target="ai">睇四週餐單</button></div>
+            <div class="daily-meal-grid"><article><time>08:30</time><span>早</span><div><h3>番茄蛋花瘦肉粥</h3><p>配菜心 · 暖水</p></div><b class="meal-done">已食 ✓</b></article><article><time>12:30</time><span>午</span><div><h3>薑汁蒸雞飯</h3><p>節瓜瘦肉湯 · 份量適中</p></div><b class="meal-done">已食 ✓</b></article><article><time>18:30</time><span>晚</span><div><h3>清蒸鱸魚配時蔬</h3><p>紅棗淮山瘦肉湯</p></div><b>待準備</b></article><article><time>15:30</time><span>點</span><div><h3>低糖芝麻糊</h3><p>可按胃口調整份量</p></div><b>稍後</b></article></div>
+            <div class="meal-principle"><span>中</span><p><strong>中醫建議已套用</strong>餐單只會套用註冊中醫確認嘅體質、忌口及食療方向；AI 負責排餐、換算份量同整買餸清單，唔會自行開藥或辨證。</p></div>
+          </div>
+        </section>
+
+        <section class="view" id="view-ai" data-view="ai">
+          <div class="page-intro ai-intro"><div><p class="eyebrow">月伴 AI 照護助手</p><h1>AI 幫手整理，<br /><em>專業人士判斷。</em></h1></div><p>AI 可以將廣東話變成記錄、找出趨勢、整交更摘要及買餸清單；唔會代替醫生或中醫診斷。</p></div>
+          <div class="ai-boundary"><span>AI</span><div><strong>AI 做：整理、提醒、配餐、準備問診摘要</strong><p>醫護／註冊中醫做：診斷、辨證、處方、決定治療及食療方向</p></div><button type="button" id="ai-voice">語音記錄</button></div>
+          <div class="ai-feature-grid">
+            <section class="card ai-summary-card"><div class="section-heading"><div><p class="eyebrow">AI 每日摘要</p><h2>今日要留意 2 件事</h2></div><span class="ai-chip">已分析 18 項記錄</span></div><div class="ai-finding caution"><span>1</span><p><strong>右邊乳房脹痛重複出現</strong>餵哺後有舒緩；可繼續記錄痛楚變化。如持續或伴隨發燒，應盡快求助專業人士。</p></div><div class="ai-finding"><span>2</span><p><strong>媽媽最長只連續休息 1 小時 20 分</strong>已通知爸爸今晚 20:00–22:00 接手照顧。</p></div><button class="secondary-btn wide" type="button" data-toast="已產生俾陪月及家人嘅交更摘要（示範）">產生家庭交更摘要</button></section>
+            <section class="card voice-card"><div class="voice-orb"><i></i><span>聲</span></div><p class="eyebrow">廣東話語音記錄</p><h2>唔使逐格填表</h2><p>例如講：「十點餵咗右邊十八分鐘，之後換咗塊濕片，媽媽右邊有少少脹。」AI 會拆成三項記錄，再俾你確認。</p><button class="primary-btn wide" type="button" id="voice-card-btn">試吓講一句</button></section>
+          </div>
+
+          <section class="tcm-section">
+            <div class="section-title"><div><p class="eyebrow">中醫連線 · Connecting · 示範醫師資料</p><h2>舌相＋視像問診，交由註冊中醫辨證</h2></div><p>AI 先整理產後記錄、飲食同舌相拍攝質素，註冊中醫再決定是否適合遙距診症及提供食療建議。</p></div>
+            <div class="tcm-grid">
+              <article class="tcm-doctor card"><div class="doctor-top"><span class="doctor-avatar">林</span><div><small>註冊中醫師 · 女</small><h3>林曉晴醫師</h3><p>婦科及產後調理 · 11 年經驗</p></div><b>視像</b></div><div class="doctor-tags"><span>產後調理</span><span>母乳期食療</span><span>廣東話</span></div><div class="doctor-next"><span>最快時段</span><strong>聽日 14:30</strong></div><button class="primary-btn wide tcm-connect" type="button" data-tcm="lam">查看及預約</button></article>
+              <article class="tcm-doctor card"><div class="doctor-top"><span class="doctor-avatar green">何</span><div><small>註冊中醫師</small><h3>何俊賢醫師</h3><p>內科及食療 · 8 年經驗</p></div><b>面診／視像</b></div><div class="doctor-tags"><span>食療餐單</span><span>睡眠調理</span><span>廣東話</span></div><div class="doctor-next"><span>最快時段</span><strong>星期五 10:00</strong></div><button class="secondary-btn wide tcm-connect" type="button" data-tcm="ho">查看及預約</button></article>
+              <article class="tongue-card card"><div class="tongue-visual"><span>舌</span><i></i></div><p class="eyebrow">問診前準備</p><h3>拍攝舌相</h3><p>AI 只會提示光線、角度及清晰度，唔會由相片自動診斷體質。</p><button class="secondary-btn wide" id="tongue-btn" type="button">睇拍攝指引</button></article>
+            </div>
+          </section>
+
+          <section class="meal-planner card">
+            <div class="section-title"><div><p class="eyebrow">四星期餐單及買餸助手</p><h2>循序漸進，唔係一開始就大補</h2></div><button class="secondary-btn" type="button" id="shopping-list-btn">生成今週買餸清單</button></div>
+            <div class="week-tabs"><button class="active" type="button" data-meal-week="1"><strong>第 1 週</strong><small>清淡復原</small></button><button type="button" data-meal-week="2"><strong>第 2 週</strong><small>溫和調理</small></button><button type="button" data-meal-week="3"><strong>第 3 週</strong><small>補充體力</small></button><button type="button" data-meal-week="4"><strong>第 4 週</strong><small>穩定過渡</small></button></div>
+            <div class="week-content"><div><span class="week-number" id="week-number">01</span><p class="eyebrow" id="week-kicker">產後第 1–7 日</p><h3 id="week-title">清淡、均衡、容易入口</h3><p id="week-copy">先照顧胃口、補充水分及均衡營養；餐單按媽媽實際情況及醫護／中醫建議調整。</p></div><div class="week-menu"><h4>示範湯品及食材</h4><div id="week-foods"><span>番茄薯仔瘦肉湯</span><span>節瓜魚片湯</span><span>雞蛋、豆腐、深綠色蔬菜</span><span>魚、瘦肉、全穀物</span></div><small>正式建議須考慮過敏、藥物、餵哺方式及個人健康狀況。</small></div></div>
+          </section>
+
+          <div class="urgent-banner"><span>!</span><div><strong>寶寶發燒、呼吸困難，或媽媽有大量出血／傷害自己或寶寶嘅念頭？</strong><p>唔好等 app 回覆，請即時致電 999 或前往急症室。</p></div><button type="button" id="urgent-btn">睇求助方法</button></div>
+          <div class="section-title knowledge-title"><div><p class="eyebrow">安心小百科</p><h2>官方資料，簡單講清</h2></div><p>整理自香港衞生署家庭健康服務。</p></div>
+          <div class="topic-tabs"><button class="active" type="button" data-topic="all">全部</button><button type="button" data-topic="baby">寶寶</button><button type="button" data-topic="mum">媽媽</button><button type="button" data-topic="feeding">餵哺</button></div>
+          <div class="article-grid" id="article-grid">
+            <article class="article-card feature" data-topic="feeding"><div class="article-art art-feed"><span>◡</span></div><div><p class="eyebrow">餵哺 · 4分鐘</p><h3>點樣知道初生寶寶食得夠？</h3><p>由濕尿片、便便同體重變化，了解寶寶攝取情況。</p><button type="button" data-article="feeding">閱讀重點 →</button></div></article>
+            <article class="article-card" data-topic="mum"><div class="article-art art-mood"><span>♡</span></div><div><p class="eyebrow">媽媽情緒 · 5分鐘</p><h3>Baby blues 定產後抑鬱？</h3><p>認識持續情緒低落嘅警號，同幾時要搵專業協助。</p><button type="button" data-article="mood">閱讀重點 →</button></div></article>
+            <article class="article-card" data-topic="baby"><div class="article-art art-jaundice"><span>☼</span></div><div><p class="eyebrow">寶寶健康 · 3分鐘</p><h3>初生黃疸要留意啲咩？</h3><p>點解會黃、點樣跟進，同點解唔應該自行曬太陽。</p><button type="button" data-article="jaundice">閱讀重點 →</button></div></article>
+            <article class="article-card" data-topic="baby"><div class="article-art art-cord"><span>✦</span></div><div><p class="eyebrow">日常護理 · 3分鐘</p><h3>臍帶清潔及異常警號</h3><p>保持乾爽；若大量出血，應立即到急症室。</p><button type="button" data-article="cord">閱讀重點 →</button></div></article>
+          </div>
+          <p class="source-note">資料來源：香港衞生署家庭健康服務 · 內容只供一般健康教育用途</p>
+        </section>
+
+        <section class="view" id="view-profile" data-view="profile">
+          <div class="page-intro"><div><p class="eyebrow">家庭與設定</p><h1>一齊照顧，<br /><em>唔使一個人頂。</em></h1></div><p>管理家人權限、重要資料及陪月服務合約。</p></div>
+          <div class="profile-grid">
+            <section class="card family-card"><div class="section-heading"><div><p class="eyebrow">共享家庭</p><h2>樂悠之家</h2></div><button class="text-btn" type="button" data-toast="邀請連結已複製（示範）">＋ 邀請</button></div><div class="family-row"><span class="avatar peach-bg">嘉</span><p><strong>嘉敏</strong><small>媽媽 · 管理員</small></p><span>可編輯</span></div><div class="family-row"><span class="avatar sage-bg">朗</span><p><strong>子朗</strong><small>爸爸</small></p><span>可編輯</span></div><div class="family-row"><span class="avatar blue-bg">陳</span><p><strong>陳姨</strong><small>陪月 · 至 7月29日</small></p><span>只可記錄</span></div></section>
+            <section class="card settings-card"><p class="eyebrow">重要資料</p><h2>寶寶及媽媽</h2><button type="button"><span>寶寶出生及健康資料</span><b>›</b></button><button type="button"><span>媽媽飲食偏好與禁忌</span><b>›</b></button><button type="button"><span>醫生及緊急聯絡人</span><b>›</b></button><button type="button"><span>私隱與資料分享</span><b>›</b></button></section>
+            <section class="card contract-card"><p class="eyebrow">現有服務</p><h2>陳美儀姨姨</h2><dl><div><dt>服務期</dt><dd>7月4日–7月29日</dd></div><div><dt>時間</dt><dd>每日 08:00–16:00</dd></div><div><dt>替補安排</dt><dd>平台 24 小時內協調</dd></div><div><dt>餘下款項</dt><dd>$8,940 · 7月22日</dd></div></dl><button class="secondary-btn wide" type="button" data-toast="示範：打開已簽署服務合約">查看服務合約</button></section>
+          </div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="主要選單">
+        <button class="active" type="button" data-view-target="home"><span>⌂</span><small>今日</small></button>
+        <button type="button" data-view-target="match"><span>⌕</span><small>搵陪月</small></button>
+        <button class="nav-add" type="button" id="nav-add" aria-label="語音記錄"><span>聲</span></button>
+        <button type="button" data-view-target="records"><span>▤</span><small>記錄</small></button>
+        <button type="button" data-view-target="ai"><span>✦</span><small>AI照護</small></button>
+      </nav>
+    </div>
+
+    <div class="overlay hidden" id="overlay"></div>
+    <section class="sheet hidden" id="log-sheet" role="dialog" aria-modal="true" aria-labelledby="log-title">
+      <div class="sheet-handle"></div><button class="sheet-close" type="button" aria-label="關閉">×</button>
+      <p class="eyebrow">快速記錄</p><h2 id="log-title">記錄一件照護小事</h2>
+      <div class="log-types"><button class="active" type="button" data-kind="feed"><span class="peach">奶</span>餵奶</button><button type="button" data-kind="diaper"><span class="sage">片</span>換片</button><button type="button" data-kind="sleep"><span class="blue">眠</span>睡眠</button><button type="button" data-kind="mood"><span class="rose">心</span>心情</button></div>
+      <div class="form-grid"><label><span id="detail-label">餵哺方式</span><select id="log-detail"><option>母乳 · 左邊</option><option>母乳 · 右邊</option><option>樽餵母乳</option><option>配方奶</option></select></label><label><span>時間</span><input id="log-time" type="time" value="10:15" /></label><label class="full"><span>備註（可選填）</span><input id="log-note" type="text" placeholder="例如：寶寶食完好平靜" /></label></div>
+      <button class="primary-btn wide" id="save-log" type="button">儲存記錄</button>
+    </section>
+
+    <section class="sheet voice-sheet hidden" id="voice-sheet" role="dialog" aria-modal="true" aria-labelledby="voice-title">
+      <div class="sheet-handle"></div><button class="sheet-close" type="button" aria-label="關閉">×</button>
+      <p class="eyebrow">廣東話語音記錄 · 原型示範</p><h2 id="voice-title">今日發生咗咩事？</h2>
+      <p class="voice-prompt">自然咁講就得，可以一次過講媽媽、寶寶同餐品。原型唔會開啟或上載你嘅咪高峰資料。</p>
+      <button class="record-orb" id="voice-record-btn" type="button"><span>聲</span><i></i><b>按一下開始示範</b></button>
+      <div class="voice-wave hidden" id="voice-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="transcript-box"><small>語音文字</small><p id="voice-transcript">「朝早十點餵咗右邊十八分鐘，之後換咗塊濕片。我右邊有少少脹，中午食咗薑汁蒸雞飯。」</p></div>
+      <div class="structured-records hidden" id="structured-records"><p class="eyebrow">AI 已拆成 4 項 · 儲存前請確認</p><div><span class="peach">奶</span><p><strong>10:00 · 右邊母乳</strong><small>18 分鐘</small></p><b>編輯</b></div><div><span class="sage">片</span><p><strong>10:20 · 濕尿片</strong><small>寶寶排泄</small></p><b>編輯</b></div><div><span class="rose">乳</span><p><strong>媽媽右邊輕微脹</strong><small>需要繼續觀察</small></p><b>編輯</b></div><div><span class="blue">食</span><p><strong>12:30 · 薑汁蒸雞飯</strong><small>午餐 · 已進食</small></p><b>編輯</b></div></div>
+      <button class="primary-btn wide hidden" id="voice-save" type="button">確認並儲存 4 項記錄</button>
+    </section>
+
+    <section class="sheet tcm-sheet hidden" id="tcm-sheet" role="dialog" aria-modal="true" aria-labelledby="tcm-sheet-name">
+      <div class="sheet-handle"></div><button class="sheet-close" type="button" aria-label="關閉">×</button>
+      <p class="eyebrow">註冊中醫連線</p><div class="tcm-sheet-head"><span class="doctor-avatar" id="tcm-sheet-avatar">林</span><div><h2 id="tcm-sheet-name">林曉晴醫師</h2><p id="tcm-sheet-meta">婦科及產後調理 · 11 年經驗</p></div></div>
+      <div class="consult-flow"><div><span>1</span><p><strong>你授權分享</strong>選擇要俾醫師睇嘅媽媽記錄、飲食及舌相。</p></div><div><span>2</span><p><strong>醫師先評估</strong>由註冊中醫決定視像診症係咪適合；有需要會安排面診。</p></div><div><span>3</span><p><strong>確認調理方向</strong>辨證、食療及任何處方只由醫師提供，AI 再協助排餐。</p></div></div>
+      <div class="telemedicine-note"><strong>遙距診症唔適合所有情況</strong><p>首次診症、資料不足、需要觸診或情況急切時，醫師可能要求面診或轉介其他醫療服務。</p></div>
+      <button class="primary-btn wide" id="tcm-book" type="button">選擇視像／面診時段</button>
+    </section>
+
+    <section class="sheet tongue-sheet hidden" id="tongue-sheet" role="dialog" aria-modal="true" aria-labelledby="tongue-title">
+      <div class="sheet-handle"></div><button class="sheet-close" type="button" aria-label="關閉">×</button>
+      <p class="eyebrow">問診前舌相</p><h2 id="tongue-title">影清楚，交俾註冊中醫睇</h2>
+      <div class="photo-guide"><div class="tongue-frame" id="tongue-preview"><span>舌</span><i></i></div><ol><li>日間自然光，避免有色燈光</li><li>影之前避免食有色食物或飲品</li><li>自然伸舌，唔好用濾鏡或美顏</li></ol></div>
+      <label class="upload-btn" for="tongue-input"><strong>選擇／拍攝相片</strong><small>相片只會先喺呢部裝置預覽</small></label><input class="visually-hidden" id="tongue-input" type="file" accept="image/*" capture="environment" />
+      <div class="ai-photo-boundary"><span>AI</span><p><strong>只檢查相片質素</strong>光線、對焦、角度及有冇使用濾鏡；唔會自動判斷體質或疾病。</p></div>
+      <button class="primary-btn wide" id="tongue-send" type="button">加入問診資料（示範）</button>
+    </section>
+
+    <section class="sheet shopping-sheet hidden" id="shopping-sheet" role="dialog" aria-modal="true" aria-labelledby="shopping-title">
+      <div class="sheet-handle"></div><button class="sheet-close" type="button" aria-label="關閉">×</button>
+      <p class="eyebrow">AI 買餸助手 · 第 1 週</p><h2 id="shopping-title">7 日餐單合併清單</h2>
+      <div class="shopping-meta"><span>2 位大人</span><span>已避開：花生</span><span>預算約 $820</span></div>
+      <div class="shopping-groups"><section><h3>肉、魚、蛋及豆類</h3><label><input type="checkbox" />瘦肉 1.2 kg</label><label><input type="checkbox" />雞件 800 g</label><label><input type="checkbox" />新鮮魚 3 條</label><label><input type="checkbox" />雞蛋 12 隻 · 豆腐 3 盒</label></section><section><h3>蔬果及湯料</h3><label><input type="checkbox" />番茄 8 個 · 薯仔 5 個</label><label><input type="checkbox" />節瓜 3 個 · 菜心 3 斤</label><label><input type="checkbox" />淮山、紅棗（按醫師建議）</label><label><input type="checkbox" />時令水果 7 份</label></section><section><h3>主食及其他</h3><label><input type="checkbox" />糙米 1 kg · 燕麥 1 包</label><label><input type="checkbox" />低糖豆奶 6 盒</label></section></div>
+      <div class="medical-note">清單按示範餐單合併，未經醫師確認嘅中藥材唔會由 AI 自動加入。份量應按家庭人數、胃口及健康需要調整。</div>
+      <button class="primary-btn wide" id="save-shopping-list" type="button">儲存並分享俾陪月</button>
+    </section>
+
+    <section class="sheet helper-sheet hidden" id="helper-sheet" role="dialog" aria-modal="true" aria-labelledby="helper-sheet-name">
+      <div class="sheet-handle"></div><button class="sheet-close" type="button" aria-label="關閉">×</button>
+      <div class="helper-sheet-head"><div class="helper-photo large photo-chan" id="sheet-photo">陳</div><div><div class="verified">✓ 身份及證書已核實</div><h2 id="helper-sheet-name">陳美儀姨姨</h2><p id="helper-sheet-meta">12 年經驗 · 港島及九龍</p></div></div>
+      <div class="sheet-rating"><strong id="sheet-rating">4.9</strong><span>★★★★★</span><small id="sheet-reviews">46 個家庭評價</small></div>
+      <div class="sheet-section"><p class="eyebrow">已核實資歷</p><div class="credential-list" id="sheet-credentials"><span>陪月員基礎證書</span><span>嬰兒急救證書</span><span>母乳餵哺支援</span></div></div>
+      <div class="sheet-section"><p class="eyebrow">服務包括</p><ul><li>照顧初生寶寶、餵哺及沖涼</li><li>準備媽媽餐單及基本家務</li><li>每日於月伴更新照護記錄</li></ul></div>
+      <div class="contract-warning"><strong>落訂前記得確認</strong><p>服務時間、工作範圍、額外收費、取消及替補安排應寫入合約。</p></div>
+      <div class="sheet-book"><div><small>示範套餐</small><strong id="sheet-price">$29,800 / 26日</strong></div><button class="primary-btn" type="button" id="book-helper">查詢檔期</button></div>
+    </section>
+
+    <section class="sheet article-sheet hidden" id="article-sheet" role="dialog" aria-modal="true" aria-labelledby="article-title">
+      <div class="sheet-handle"></div><button class="sheet-close" type="button" aria-label="關閉">×</button>
+      <p class="eyebrow" id="article-kicker">安心小百科</p><h2 id="article-title">文章標題</h2><div id="article-body"></div>
+      <div class="medical-note">呢啲係一般健康教育資料，唔可以代替醫護人員嘅個別評估。如有疑問或情況轉差，請盡快求醫。</div>
+      <a id="article-source" class="secondary-btn wide source-link" href="https://www.fhs.gov.hk/" target="_blank" rel="noreferrer">查看衞生署原文 ↗</a>
+    </section>
+
+    <section class="sheet urgent-sheet hidden" id="urgent-sheet" role="dialog" aria-modal="true" aria-labelledby="urgent-title">
+      <div class="sheet-handle"></div><button class="sheet-close" type="button" aria-label="關閉">×</button>
+      <p class="eyebrow urgent-text">重要支援</p><h2 id="urgent-title">以下情況唔好等</h2>
+      <div class="urgent-list"><div><span>寶</span><p><strong>寶寶</strong>呼吸困難、抽搐、難以喚醒、出生數星期內發燒，或臍帶大量出血。</p></div><div><span>媽</span><p><strong>媽媽</strong>大量出血、昏厥、胸痛／呼吸困難，或有傷害自己／寶寶嘅念頭。</p></div></div>
+      <a class="primary-btn wide emergency-call" href="tel:999">致電 999</a>
+      <p class="emergency-copy">非即時危險但持續擔心：聯絡母嬰健康院、家庭醫生、婦產科或兒科醫生。</p>
+    </section>
+
+    <div class="toast hidden" id="toast" role="status" aria-live="polite"><span>✓</span><p id="toast-copy">已完成</p></div>
+    <script src="app.js"></script>
+  </body>
+</html>
